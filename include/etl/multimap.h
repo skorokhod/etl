@@ -33,14 +33,10 @@ SOFTWARE.
 
 #include <stddef.h>
 
-#include <new>
-
 #include "platform.h"
-
 #include "algorithm.h"
 #include "iterator.h"
 #include "functional.h"
-
 #include "container.h"
 #include "pool.h"
 #include "exception.h"
@@ -51,15 +47,13 @@ SOFTWARE.
 #include "parameter_type.h"
 #include "iterator.h"
 #include "utility.h"
+#include "placement_new.h"
 
 #if ETL_CPP11_SUPPORTED && ETL_NOT_USING_STLPORT && ETL_USING_STL
   #include <initializer_list>
 #endif
 
 #include "private/minmax_push.h"
-
-#undef ETL_FILE
-#define ETL_FILE "9"
 
 //*****************************************************************************
 /// A multimap with the capacity defined at compile time.
@@ -91,7 +85,7 @@ namespace etl
   public:
 
     multimap_full(string_type file_name_, numeric_type line_number_)
-      : etl::multimap_exception("multimap:full", file_name_, line_number_)
+      : etl::multimap_exception(ETL_ERROR_TEXT("multimap:full", ETL_MULTIMAP_FILE_ID"A"), file_name_, line_number_)
     {
     }
   };
@@ -105,7 +99,7 @@ namespace etl
   public:
 
     multimap_out_of_bounds(string_type file_name_, numeric_type line_number_)
-      : etl::multimap_exception("multimap:bounds", file_name_, line_number_)
+      : etl::multimap_exception(ETL_ERROR_TEXT("multimap:bounds", ETL_MULTIMAP_FILE_ID"B"), file_name_, line_number_)
     {
     }
   };
@@ -119,7 +113,7 @@ namespace etl
   public:
 
     multimap_iterator(string_type file_name_, numeric_type line_number_)
-      : etl::multimap_exception("multimap:iterator", file_name_, line_number_)
+      : etl::multimap_exception(ETL_ERROR_TEXT("multimap:iterator", ETL_MULTIMAP_FILE_ID"C"), file_name_, line_number_)
     {
     }
   };
@@ -798,39 +792,24 @@ namespace etl
         return temp;
       }
 
-      iterator operator =(const iterator& other)
+      iterator& operator =(const iterator& other)
       {
         p_multimap = other.p_multimap;
         p_node = other.p_node;
         return *this;
       }
 
-      reference operator *()
+      reference operator *() const
       {
         return imultimap::data_cast(p_node)->value;
       }
 
-      const_reference operator *() const
-      {
-        return imultimap::data_cast(p_node)->value;
-      }
-
-      pointer operator &()
+      pointer operator &() const
       {
         return &(imultimap::data_cast(p_node)->value);
       }
 
-      const_pointer operator &() const
-      {
-        return &(imultimap::data_cast(p_node)->value);
-      }
-
-      pointer operator ->()
-      {
-        return &(imultimap::data_cast(p_node)->value);
-      }
-
-      const_pointer operator ->() const
+      pointer operator ->() const
       {
         return &(imultimap::data_cast(p_node)->value);
       }
@@ -924,7 +903,7 @@ namespace etl
         return temp;
       }
 
-      const_iterator operator =(const const_iterator& other)
+      const_iterator& operator =(const const_iterator& other)
       {
         p_multimap = other.p_multimap;
         p_node = other.p_node;
@@ -2033,7 +2012,6 @@ namespace etl
     {
     }
 #endif
-
   };
 
   //*************************************************************************
@@ -2044,7 +2022,7 @@ namespace etl
   {
   public:
 
-    static const size_t MAX_SIZE = MAX_SIZE_;
+    static ETL_CONSTANT size_t MAX_SIZE = MAX_SIZE_;
 
     //*************************************************************************
     /// Default constructor.
@@ -2158,6 +2136,17 @@ namespace etl
     etl::pool<typename etl::imultimap<TKey, TValue, TCompare>::Data_Node, MAX_SIZE> node_pool;
   };
 
+  //*************************************************************************
+  /// Template deduction guides.
+  //*************************************************************************
+#if ETL_CPP17_SUPPORTED && ETL_NOT_USING_STLPORT && ETL_USING_STL
+  template <typename T, typename... Ts>
+  multimap(T, Ts...)
+    ->multimap<etl::enable_if_t<(etl::is_same_v<T, Ts> && ...), typename T::first_type>,
+                typename T::second_type,
+                1U + sizeof...(Ts)>;
+#endif 
+
   //***************************************************************************
   /// Equal operator.
   ///\param lhs Reference to the first lookup.
@@ -2238,7 +2227,5 @@ namespace etl
 }
 
 #include "private/minmax_pop.h"
-
-#undef ETL_FILE
 
 #endif

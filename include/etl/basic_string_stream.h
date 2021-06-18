@@ -34,6 +34,7 @@ SOFTWARE.
 ///\ingroup string
 
 #include "platform.h"
+#include "to_string.h"
 
 namespace etl
 {
@@ -110,22 +111,6 @@ namespace etl
     void str(const TIString& is)
     {
       text.assign(is);
-    }
-
-    //*************************************************************************
-    /// Resets the stream to an empty string.
-    //*************************************************************************
-    void clear()
-    {
-      text.clear();
-    }
-
-    //*************************************************************************
-    /// Get the current size of the string.
-    //*************************************************************************
-    size_t size() const
-    {
-      return text.size();
     }
 
     //*************************************************************************

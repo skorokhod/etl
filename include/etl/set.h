@@ -33,8 +33,6 @@ SOFTWARE.
 
 #include <stddef.h>
 
-#include <new>
-
 #include "platform.h"
 #include "container.h"
 #include "pool.h"
@@ -46,19 +44,16 @@ SOFTWARE.
 #include "parameter_type.h"
 #include "iterator.h"
 #include "utility.h"
-
 #include "algorithm.h"
 #include "iterator.h"
 #include "functional.h"
+#include "placement_new.h"
 
 #if ETL_CPP11_SUPPORTED && ETL_NOT_USING_STLPORT && ETL_USING_STL
   #include <initializer_list>
 #endif
 
 #include "private/minmax_push.h"
-
-#undef ETL_FILE
-#define ETL_FILE "14"
 
 //*****************************************************************************
 ///\defgroup set set
@@ -91,7 +86,7 @@ namespace etl
   public:
 
     set_full(string_type file_name_, numeric_type line_number_)
-      : etl::set_exception(ETL_ERROR_TEXT("set:full", ETL_FILE"A"), file_name_, line_number_)
+      : etl::set_exception(ETL_ERROR_TEXT("set:full", ETL_SET_FILE_ID"A"), file_name_, line_number_)
     {
     }
   };
@@ -105,7 +100,7 @@ namespace etl
   public:
 
     set_out_of_bounds(string_type file_name_, numeric_type line_number_)
-      : etl::set_exception(ETL_ERROR_TEXT("set:bounds", ETL_FILE"B"), file_name_, line_number_)
+      : etl::set_exception(ETL_ERROR_TEXT("set:bounds", ETL_SET_FILE_ID"B"), file_name_, line_number_)
     {
     }
   };
@@ -119,7 +114,7 @@ namespace etl
   public:
 
     set_iterator(string_type file_name_, numeric_type line_number_)
-      : etl::set_exception(ETL_ERROR_TEXT("set:iterator problem", ETL_FILE"C"), file_name_, line_number_)
+      : etl::set_exception(ETL_ERROR_TEXT("set:iterator problem", ETL_SET_FILE_ID"C"), file_name_, line_number_)
     {
     }
   };
@@ -617,39 +612,24 @@ namespace etl
         return temp;
       }
 
-      iterator operator =(const iterator& other)
+      iterator& operator =(const iterator& other)
       {
         p_set = other.p_set;
         p_node = other.p_node;
         return *this;
       }
 
-      reference operator *()
+      reference operator *() const
       {
         return iset::data_cast(p_node)->value;
       }
 
-      const_reference operator *() const
-      {
-        return iset::data_cast(p_node)->value;
-      }
-
-      pointer operator &()
+      pointer operator &() const
       {
         return &(iset::data_cast(p_node)->value);
       }
 
-      const_pointer operator &() const
-      {
-        return &(iset::data_cast(p_node)->value);
-      }
-
-      pointer operator ->()
-      {
-        return &(iset::data_cast(p_node)->value);
-      }
-
-      const_pointer operator ->() const
+      pointer operator ->() const
       {
         return &(iset::data_cast(p_node)->value);
       }
@@ -743,7 +723,7 @@ namespace etl
         return temp;
       }
 
-      const_iterator operator =(const const_iterator& other)
+      const_iterator& operator =(const const_iterator& other)
       {
         p_set = other.p_set;
         p_node = other.p_node;
@@ -2106,7 +2086,7 @@ namespace etl
   {
   public:
 
-    static const size_t MAX_SIZE = MAX_SIZE_;
+    static ETL_CONSTANT size_t MAX_SIZE = MAX_SIZE_;
 
     //*************************************************************************
     /// Default constructor.
@@ -2221,6 +2201,15 @@ namespace etl
     etl::pool<typename etl::iset<TKey, TCompare>::Data_Node, MAX_SIZE> node_pool;
   };
 
+  //*************************************************************************
+  /// Template deduction guides.
+  //*************************************************************************
+#if ETL_CPP17_SUPPORTED && ETL_NOT_USING_STLPORT && ETL_USING_STL
+  template <typename T, typename... Ts>
+  set(T, Ts...)
+    ->set<etl::enable_if_t<(etl::is_same_v<T, Ts> && ...), T>, 1U + sizeof...(Ts)>;
+#endif 
+
   //***************************************************************************
   /// Equal operator.
   ///\param lhs Reference to the first lookup.
@@ -2301,7 +2290,5 @@ namespace etl
 }
 
 #include "private/minmax_pop.h"
-
-#undef ETL_FILE
 
 #endif

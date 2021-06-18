@@ -26,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ******************************************************************************/
 
-#include "UnitTest++/UnitTest++.h"
-#include "ExtraCheckMacros.h"
+#include "unit_test_framework.h"
 
 #include "etl/delegate.h"
 
@@ -44,6 +43,20 @@ namespace
   //*****************************************************************************
   struct Data
   {
+    int d;
+  };
+
+  //*****************************************************************************
+  // Test moveable only data structure.
+  //*****************************************************************************
+  struct MoveableOnlyData
+  {
+    MoveableOnlyData() = default;
+    ~MoveableOnlyData() = default;
+    MoveableOnlyData(const MoveableOnlyData&) = delete;
+    MoveableOnlyData& operator=(const MoveableOnlyData&) = delete;
+    MoveableOnlyData(MoveableOnlyData&&) = default;
+    MoveableOnlyData& operator=(MoveableOnlyData&&) = default;
     int d;
   };
 
@@ -71,6 +84,15 @@ namespace
   {
     function_called = true;
     parameter_correct = (data.d == VALUE1) && (j == VALUE2);
+  }
+
+  //*****************************************************************************
+  // The free function taking a moveable only parameter.
+  //*****************************************************************************
+  void free_moveableonly(MoveableOnlyData&& data)
+  {
+    function_called = true;
+    parameter_correct = (data.d == VALUE1);
   }
 
   //*****************************************************************************
@@ -118,6 +140,14 @@ namespace
     {
       function_called = true;
       parameter_correct = (data.d == VALUE1) && (j = VALUE2);
+    }
+
+    //*******************************************
+    // moveable only data
+    void member_moveableonly(MoveableOnlyData&& data)
+    {
+      function_called = true;
+      parameter_correct = (data.d == VALUE1);
     }
 
     //*******************************************
@@ -172,6 +202,20 @@ namespace
       CHECK_THROW(d(), etl::delegate_uninitialised);
     }
 
+    SUITE(test_constexpr_delegate)
+    {
+      //*************************************************************************
+      TEST_FIXTURE(SetupFixture, test_is_valid_false)
+      {
+        constexpr etl::delegate<void(void)> d;
+
+        CHECK(!d.is_valid());
+        CHECK(!d);
+
+        CHECK_THROW(d(), etl::delegate_uninitialised);
+      }
+    }
+
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_is_valid_true)
     {
@@ -193,9 +237,30 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_void_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(void)>::create<free_void>();
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_int)
     {
       auto d = etl::delegate<void(int, int)>::create<free_int>();
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_int_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(int, int)>::create<free_int>();
 
       d(VALUE1, VALUE2);
 
@@ -218,6 +283,48 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_reference_constexpr)
+    {
+      constexpr etl::delegate<void(const Data&, int)> d = etl::delegate<void(const Data&, int)>::create<free_reference>();
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_moveableonly)
+    {
+      auto d = etl::delegate<void(MoveableOnlyData&&)>::create<free_moveableonly>();
+
+      MoveableOnlyData data;
+      data.d = VALUE1;
+
+      d(std::move(data));
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_moveableonly_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(MoveableOnlyData&&)>::create<free_moveableonly>();
+
+      MoveableOnlyData data;
+      data.d = VALUE1;
+
+      d(std::move(data));
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_lambda_int)
     {
       etl::delegate<void(int, int)> d([](int i, int j) { function_called = true; parameter_correct = (i == VALUE1) && (j == VALUE2); });
@@ -225,6 +332,7 @@ namespace
       d(VALUE1, VALUE2);
 
       CHECK(function_called);
+      CHECK(parameter_correct);
     }
 
     //*************************************************************************
@@ -237,6 +345,7 @@ namespace
       d(VALUE1, VALUE2);
 
       CHECK(function_called);
+      CHECK(parameter_correct);
     }
 
     //*************************************************************************
@@ -257,6 +366,18 @@ namespace
       Test test;
 
       auto d = etl::delegate<void(void)>::create(test);
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_operator_void_create_constexpr)
+    {
+      static Test test;
+
+      constexpr auto d = etl::delegate<void(void)>::create(test);
 
       d();
 
@@ -287,9 +408,29 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(void)>::create<Test, test_static>();
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_const)
     {
       auto d = etl::delegate<void(void)>::create<const Test, const_test_static>();
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_const_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(void)>::create<const Test, const_test_static>();
 
       d();
 
@@ -324,6 +465,18 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_void_constexpr)
+    {
+      static Test test;
+
+      constexpr auto d = etl::delegate<void(void)>::create<Test, &Test::member_void>(test);
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_const)
     {
       const Test test;
@@ -336,11 +489,36 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_void_const_constexpr)
+    {
+      static const Test test;
+
+      constexpr auto d = etl::delegate<void(void)>::create<Test, &Test::member_void_const>(test);
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int)
     {
       Test test;
 
       auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_int_constexpr)
+    {
+      static Test test;
+
+      constexpr auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
 
       d(VALUE1, VALUE2);
 
@@ -362,10 +540,38 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_int_const_constexpr)
+    {
+      static const Test test;
+
+      constexpr auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int_const>(test);
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_reference)
     {
       Test test;
       auto d = etl::delegate<void(const Data&, int)>::create<Test, &Test::member_reference>(test);
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_reference_constexpr)
+    {
+      static Test test;
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<Test, &Test::member_reference>(test);
 
       Data data;
       data.d = VALUE1;
@@ -392,9 +598,68 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_reference_const_constexpr)
+    {
+      static const Test test;
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<Test, &Test::member_reference_const>(test);
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_moveableonly)
+    {
+      Test test;
+      auto d = etl::delegate<void(MoveableOnlyData&&)>::create<Test, &Test::member_moveableonly>(test);
+
+      MoveableOnlyData data;
+      data.d = VALUE1;
+
+      d(std::move(data));
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_moveableonly_constexpr)
+    {
+      static Test test;
+      constexpr auto d = etl::delegate<void(MoveableOnlyData&&)>::create<Test, &Test::member_moveableonly>(test);
+
+      MoveableOnlyData data;
+      data.d = VALUE1;
+
+      d(std::move(data));
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_static)
     {
       auto d = etl::delegate<void(const Data&, int)>::create<Test::member_static>();
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_static_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<Test::member_static>();
 
       Data data;
       data.d = VALUE1;
@@ -417,6 +682,16 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_void_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(void)>::create<Test, test_static, &Test::member_void>();
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_const_compile_time)
     {
       auto d = etl::delegate<void(void)>::create<Test, const_test_static, &Test::member_void_const>();
@@ -427,9 +702,30 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_void_const_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(void)>::create<Test, const_test_static, &Test::member_void_const>();
+
+      d();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int_compile_time)
     {
       auto d = etl::delegate<void(int, int)>::create<Test, test_static, &Test::member_int>();
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_int_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(int, int)>::create<Test, test_static, &Test::member_int>();
 
       d(VALUE1, VALUE2);
 
@@ -449,9 +745,34 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_int_const_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(int, int)>::create<Test, const_test_static, &Test::member_int_const>();
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_reference_compile_time)
     {
       auto d = etl::delegate<void(const Data&, int)>::create<Test, test_static, &Test::member_reference>();
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_reference_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<Test, test_static, &Test::member_reference>();
 
       Data data;
       data.d = VALUE1;
@@ -475,6 +796,20 @@ namespace
       CHECK(function_called);
       CHECK(parameter_correct);
     }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_member_reference_const_compile_time_constexpr)
+    {
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<Test, const_test_static, &Test::member_reference_const>();
+
+      Data data;
+      data.d = VALUE1;
+
+      d(data, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
 #endif
 
     //*************************************************************************
@@ -484,6 +819,20 @@ namespace
 
       auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
       auto d2(d1);
+
+      d2(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_copy_construct_constexpr)
+    {
+      static Test test;
+
+      constexpr auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      constexpr auto d2(d1);
 
       d2(VALUE1, VALUE2);
 

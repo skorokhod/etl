@@ -60,9 +60,6 @@ SOFTWARE.
 
 #include <stdint.h>
 
-#undef ETL_FILE
-#define ETL_FILE "55"
-
 namespace etl
 {
   //***************************************************************************
@@ -172,6 +169,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: case T12::ID: case T13::ID: case T14::ID: case T15::ID: case T16::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16>::size,
@@ -190,7 +222,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -219,7 +251,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -248,7 +280,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -385,6 +417,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: case T12::ID: case T13::ID: case T14::ID: case T15::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>::size,
@@ -403,7 +470,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -431,7 +498,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -459,7 +526,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -595,6 +662,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: case T12::ID: case T13::ID: case T14::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>::size,
@@ -613,7 +715,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -640,7 +742,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -667,7 +769,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -802,6 +904,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: case T12::ID: case T13::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>::size,
@@ -820,7 +957,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -846,7 +983,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -872,7 +1009,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1005,6 +1142,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: case T12::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>::size,
@@ -1023,7 +1195,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -1048,7 +1220,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1073,7 +1245,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1205,6 +1377,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: case T11::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>::size,
@@ -1223,7 +1430,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -1247,7 +1454,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1271,7 +1478,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1402,6 +1609,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: case T10::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>::size,
@@ -1420,7 +1662,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -1443,7 +1685,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1466,7 +1708,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1596,6 +1838,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        case T9::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8, T9>::size,
@@ -1614,7 +1891,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -1636,7 +1913,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1658,7 +1935,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1786,6 +2063,41 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: case T8::ID: 
+        
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7, T8>::size,
@@ -1804,7 +2116,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -1825,7 +2137,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1846,7 +2158,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -1973,6 +2285,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: case T7::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6, T7>::size,
@@ -1991,7 +2337,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2011,7 +2357,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2031,7 +2377,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2157,6 +2503,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: case T6::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5, T6>::size,
@@ -2175,7 +2555,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2194,7 +2574,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2213,7 +2593,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2338,6 +2718,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: case T5::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4, T5>::size,
@@ -2356,7 +2770,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2374,7 +2788,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2392,7 +2806,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2515,6 +2929,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: case T4::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3, T4>::size,
@@ -2533,7 +2981,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2550,7 +2998,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2567,7 +3015,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2689,6 +3137,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: case T3::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2, T3>::size,
@@ -2707,7 +3189,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2723,7 +3205,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2739,7 +3221,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2860,6 +3342,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: case T2::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1, T2>::size,
@@ -2878,7 +3394,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -2893,7 +3409,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -2908,7 +3424,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -3028,6 +3544,40 @@ namespace etl
       return valid;
     }
 
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(etl::message_id_t id)
+    {
+      switch (id)
+      {
+        case T1::ID: 
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    //**********************************************
+    static ETL_CONSTEXPR bool accepts(const etl::imessage& msg)
+    {
+      return accepts(msg.get_message_id());
+    }
+
+    //**********************************************
+    template <etl::message_id_t Id>
+    static ETL_CONSTEXPR bool accepts()
+    {
+      return accepts(Id);
+    }
+
+    //**********************************************
+    template <typename TMessage>
+    static ETL_CONSTEXPR
+    typename etl::enable_if<!etl::is_integral<TMessage>::value, bool>::type
+      accepts()
+    {
+      return accepts(TMessage::ID);
+    }
+
     enum
     {
       SIZE      = etl::largest<T1>::size,
@@ -3046,7 +3596,7 @@ namespace etl
   #if defined(ETL_MESSAGES_ARE_VIRTUAL) || defined(ETL_POLYMORPHIC_MESSAGES)
         pmsg->~imessage();
   #else
-        size_t id = pmsg->message_id;
+        size_t id = pmsg->get_message_id();
 
         switch (id)
         {
@@ -3060,7 +3610,7 @@ namespace etl
     //********************************************
     void add_new_message(const etl::imessage& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -3074,7 +3624,7 @@ namespace etl
     //********************************************
     void add_new_message(etl::imessage&& msg)
     {
-      const size_t id = msg.message_id;
+      const size_t id = msg.get_message_id();
       void* p = data;
 
       switch (id)
@@ -3089,7 +3639,5 @@ namespace etl
     bool valid;
   };
 }
-
-#undef ETL_FILE
 
 #endif
