@@ -1116,6 +1116,9 @@
     <ClInclude Include="..\..\include\etl\mem_cast.h">
       <Filter>ETL\Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\etl\persistence.h">
+      <Filter>ETL\Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
@@ -2542,6 +2545,9 @@
     </ClCompile>
     <ClCompile Include="..\sanity-check\mem_cast.h.t.cpp">
       <Filter>Source Files\Sanity Checks</Filter>
+    </ClCompile>
+    <ClCompile Include="..\test_persistence.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
