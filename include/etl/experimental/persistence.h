@@ -136,7 +136,7 @@ namespace etl
     /// Generic Save Persistent.
     //***************************************************************************
     template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, void>::type
+    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, void>::type
       save_to_persistent(etl::experimental::ipersistence& persistence, T value)
     {
       T temp(value);
@@ -148,7 +148,7 @@ namespace etl
 
     //*********************************
     template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, etl::experimental::ipersistence&>::type
+    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, etl::experimental::ipersistence&>::type
       operator <<(etl::experimental::ipersistence& ip, T value)
     {
       save_to_persistent(ip, value);
@@ -160,7 +160,7 @@ namespace etl
     /// Generic Load Persistent.
     //***************************************************************************
     template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, void>::type
+    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, void>::type
       load_from_persistent(etl::experimental::ipersistence& persistence, T& value)
     {
       size_t length = sizeof(T);
@@ -169,7 +169,7 @@ namespace etl
 
     //*********************************
     template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, etl::experimental::ipersistence&>::type
+    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, etl::experimental::ipersistence&>::type
       operator >>(etl::experimental::ipersistence& ip, T& value)
     {
       load_from_persistent(ip, value);
