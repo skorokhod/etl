@@ -35,6 +35,7 @@ namespace
 {
   using IPersistence = etl::experimental::ipersistence;
   using String = etl::string<10>;
+  using SmallerString = etl::string<5>;
 
   std::ostream& operator <<(std::ostream& os, const String& text)
   {
@@ -210,18 +211,36 @@ namespace
 
       Data data1 = { 99, "99" };
 
-      store << data1;
+      store << data1.i << data1.text;
 
       store.start();
 
       Data data2 = { 0, "0" };
 
-      store >> data2;
+      store >> data2.i >> data2.text;
 
       CHECK(data1 == data2);
       CHECK_EQUAL(data1.i, data2.i);
       CHECK_EQUAL(data1.text.size(), data2.text.size());
       CHECK_EQUAL(data1.text, data2.text);
+    }
+
+    //*************************************************************************
+    TEST(test_save_load_mismatch)
+    {
+      Store store;
+
+      store.start();
+
+      String text1 { "0123456789" };
+
+      save_to_persistent(store, text1);
+
+      store.start();
+
+      SmallerString text2 = { "00000" };
+
+      CHECK_THROW((load_from_persistent(store, text2)), etl::experimental::persistence_size_mismatch);
     }
   };
 }

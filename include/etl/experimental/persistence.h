@@ -34,11 +34,39 @@ SOFTWARE.
 #include "../platform.h"
 #include "../memory.h"
 #include "../type_traits.h"
+#include "../error_handler.h"
+#include "../exception.h"
 
 namespace etl 
 {
   namespace experimental
   {
+    //***************************************************************************
+    /// Exception base for persistence
+    //***************************************************************************
+    class persistence_exception : public etl::exception
+    {
+    public:
+
+      persistence_exception(string_type reason_, string_type file_name_, numeric_type line_number_)
+        : exception(reason_, file_name_, line_number_)
+      {
+      }
+    };
+
+    //***************************************************************************
+    /// Size mismatch error
+    //***************************************************************************
+    class persistence_size_mismatch : public etl::experimental::persistence_exception
+    {
+    public:
+
+      persistence_size_mismatch(string_type file_name_, numeric_type line_number_)
+        : persistence_exception(ETL_ERROR_TEXT("persistence:size mismatch", ETL_PERSISTENCE_FILE_ID"A"), file_name_, line_number_)
+      {
+      }
+    };
+
     //***************************************************************************
     /// Persistence interface.
     //***************************************************************************

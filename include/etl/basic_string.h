@@ -2611,6 +2611,15 @@ namespace etl
     persistence.save(pvalue, length);
   }
 
+  //***********************************
+  template <typename T>
+  etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::ibasic_string<T>& value)
+  {
+    save_to_persistent(ip, value);
+
+    return ip;
+  }
+
   //***************************************************************************
   /// Load a basic_string from persitent storage.
   //***************************************************************************
@@ -2622,7 +2631,8 @@ namespace etl
     size_t buffer_size;
     load_from_persistent(persistence, buffer_size);
 
-    // TODO Check that the string has enough capacity.
+    // Check that the string has enough capacity.
+    ETL_ASSERT((buffer_size <= value.capacity() + 1U) , ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
     value.resize(value.capacity());
 
@@ -2631,6 +2641,15 @@ namespace etl
     persistence.load(pvalue, length);
 
     value.resize(etl::strlen(value.c_str()));
+  }
+
+  //*********************************
+  template <typename T>
+  etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::ibasic_string<T>& value)
+  {
+    load_from_persistent(ip, value);
+
+    return ip;
   }
 }
 
