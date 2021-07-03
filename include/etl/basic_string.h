@@ -2626,7 +2626,7 @@ namespace etl
   template <typename T>
   void load_from_persistent(etl::experimental::ipersistence& persistence, etl::ibasic_string<T>& value)
   {
-    using etl::experimental::save_to_persistent;
+    using etl::experimental::load_from_persistent;
 
     size_t buffer_size;
     load_from_persistent(persistence, buffer_size);

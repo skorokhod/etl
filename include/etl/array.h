@@ -43,6 +43,8 @@ SOFTWARE.
 #include "parameter_type.h"
 #include "static_assert.h"
 #include "error_handler.h"
+#include "exception.h"
+#include "experimental/persistence.h"
 
 ///\defgroup array array
 /// A replacement for std::array if you haven't got C++0x11.
@@ -675,6 +677,60 @@ namespace etl
   {
     ETL_STATIC_ASSERT(I < MAXN, "Index out of bounds");
     return a[I];
+  }
+
+  //***************************************************************************
+  /// Save an array to persitent storage.
+  //***************************************************************************
+  template <typename T, size_t Size>
+  void save_to_persistent(etl::experimental::ipersistence& persistence, const etl::array<T, Size>& value)
+  {
+    using etl::experimental::save_to_persistent;
+
+    size_t buffer_size = Size;
+
+    save_to_persistent(persistence, buffer_size);
+
+    const char* pvalue = reinterpret_cast<const char*>(value.data());
+    size_t      length = sizeof(T) * buffer_size;
+    persistence.save(pvalue, length);
+  }
+
+  //***********************************
+  template <typename T, size_t Size>
+  etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::array<T, Size>& value)
+  {
+    save_to_persistent(ip, value);
+
+    return ip;
+  }
+
+  //***************************************************************************
+  /// Load an array from persitent storage.
+  //***************************************************************************
+  template <typename T, size_t Size>
+  void load_from_persistent(etl::experimental::ipersistence& persistence, etl::array<T, Size>& value)
+  {
+    using etl::experimental::load_from_persistent;
+
+    size_t buffer_size;
+    load_from_persistent(persistence, buffer_size);
+
+    // Check that the array has enough capacity.
+    ETL_ASSERT((buffer_size <= Size), ETL_ERROR(etl::experimental::persistence_size_mismatch));
+
+    char* pvalue = reinterpret_cast<char*>(value.data());
+    size_t      length = sizeof(T) * buffer_size;
+    persistence.load(pvalue, length);
+  }
+
+  //*********************************
+  template <typename T, size_t Size>
+  etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::array<T, Size>& value)
+  {
+    load_from_persistent(ip, value);
+
+    return ip;
   }
 }
 
