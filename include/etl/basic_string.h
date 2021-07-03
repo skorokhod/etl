@@ -53,6 +53,7 @@ SOFTWARE.
 #include "exception.h"
 #include "binary.h"
 #include "flags.h"
+#include "experimental/persistence.h"
 
 #ifdef ETL_COMPILER_GCC
 #pragma GCC diagnostic push
@@ -2591,6 +2592,45 @@ namespace etl
   bool operator >=(const T* lhs, const etl::ibasic_string<T>& rhs)
   {
     return !(lhs < rhs);
+  }
+
+  //***************************************************************************
+  /// Save a basic_string to persitent storage.
+  //***************************************************************************
+  template <typename T>
+  void save_to_persistent(etl::experimental::ipersistence& persistence, const etl::ibasic_string<T>& value)
+  {
+    using etl::experimental::save_to_persistent;
+
+    size_t buffer_size = value.capacity() + 1U;
+
+    save_to_persistent(persistence, buffer_size);
+
+    const char* pvalue = reinterpret_cast<const char*>(value.data());
+    size_t      length = sizeof(T) * buffer_size;
+    persistence.save(pvalue, length);
+  }
+
+  //***************************************************************************
+  /// Load a basic_string from persitent storage.
+  //***************************************************************************
+  template <typename T>
+  void load_from_persistent(etl::experimental::ipersistence& persistence, etl::ibasic_string<T>& value)
+  {
+    using etl::experimental::save_to_persistent;
+
+    size_t buffer_size;
+    load_from_persistent(persistence, buffer_size);
+
+    // TODO Check that the string has enough capacity.
+
+    value.resize(value.capacity());
+
+    char* pvalue = reinterpret_cast<char*>(value.data());
+    size_t      length = sizeof(T) * buffer_size;
+    persistence.load(pvalue, length);
+
+    value.resize(etl::strlen(value.c_str()));
   }
 }
 
