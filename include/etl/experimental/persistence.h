@@ -137,7 +137,7 @@ namespace etl
     //***************************************************************************
     template <typename T>
     typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, void>::type
-      save_to_persistent(etl::experimental::ipersistence& persistence, const T& value)
+      save_to_persistent(etl::experimental::ipersistence& persistence, T value)
     {
       T temp(value);
 
@@ -149,35 +149,12 @@ namespace etl
     //*********************************
     template <typename T>
     typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, etl::experimental::ipersistence&>::type
-      operator <<(etl::experimental::ipersistence& ip, const T& value)
+      operator <<(etl::experimental::ipersistence& ip, T value)
     {
       save_to_persistent(ip, value);
 
       return ip;
     }
-
-#if ETL_CPP11_SUPPORTED
-    template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, void>::type
-      save_to_persistent(etl::experimental::ipersistence& persistence, T&& value)
-    {
-      T temp(etl::move(value));
-
-      const char* pvalue = reinterpret_cast<const char*>(&temp);
-      size_t      length = sizeof(temp);
-      persistence.save(pvalue, length);
-    }
-
-    //*********************************
-    template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value, etl::experimental::ipersistence&>::type
-      operator <<(etl::experimental::ipersistence& ip, T&& value)
-    {
-      save_to_persistent(ip, etl::move(value));
-
-      return ip;
-    }
-#endif
 
     //***************************************************************************
     /// Generic Load Persistent.
@@ -203,20 +180,7 @@ namespace etl
     //***************************************************************************
     /// Find the require persistence size for a value.
     //***************************************************************************
-    template <typename T>
-    size_t persistence_size(const T& value)
-    {
-      using etl::experimental::save_to_persistent;
-
-      persistence_profiler profiler;
-
-      save_to_persistent(profiler, value);
-
-      return profiler.size();
-    }
-
 #if ETL_CPP11_SUPPORTED
-    //*********************************
     template <typename T>
     size_t persistence_size(T&& value)
     {
@@ -228,21 +192,32 @@ namespace etl
 
       return profiler.size();
     }
+#else
+    template <typename T>
+    size_t persistence_size(const T& value)
+    {
+      using etl::experimental::save_to_persistent;
+
+      persistence_profiler profiler;
+
+      save_to_persistent(profiler, value);
+
+      return profiler.size();
+    }
 #endif
 
     //***************************************************************************
     /// Generic Step Persistent.
     //***************************************************************************
+#if ETL_CPP11_SUPPORTED
     template <typename T>
-    void step_persistent(etl::experimental::ipersistence& persistence, const T& value)
+    void step_persistent(etl::experimental::ipersistence& persistence, T&& value)
     {
       persistence.step(persistence_size(value));
     }
-
-#if ETL_CPP11_SUPPORTED
-    //*********************************
+#else
     template <typename T>
-    void step_persistent(etl::experimental::ipersistence& persistence, T&& value)
+    void step_persistent(etl::experimental::ipersistence& persistence, const T& value)
     {
       persistence.step(persistence_size(value));
     }
