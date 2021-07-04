@@ -239,7 +239,7 @@ namespace etl
     template <typename T>
     void step_persistent(etl::experimental::ipersistence& persistence, T&& value)
     {
-      persistence.step(persistence_size(value));
+      persistence.step(persistence_size(etl::move(value)));
     }
 #endif
 
