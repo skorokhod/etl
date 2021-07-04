@@ -163,7 +163,7 @@ namespace
       save_to_persistent(profiler, data1.text);
 
       CHECK_EQUAL(sizeof(uint32_t) +
-                  sizeof(uint32_t) +
+                  sizeof(uint16_t) +
                   (sizeof(String::value_type) * (String::MAX_SIZE + 1U)), profiler.size());
     }
 
@@ -175,7 +175,7 @@ namespace
       size_t size = etl::experimental::persistence_size(data1);
 
       CHECK_EQUAL(sizeof(uint32_t) +
-                  sizeof(uint32_t) +
+                  sizeof(uint16_t) +
                   (sizeof(String::value_type) * (String::MAX_SIZE + 1U)), size);
     }
 

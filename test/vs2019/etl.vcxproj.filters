@@ -1119,9 +1119,6 @@
     <ClInclude Include="..\..\include\etl\mem_cast.h">
       <Filter>ETL\Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\etl\persistence.h">
-      <Filter>ETL\Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\etl\experimental\persistence.h">
       <Filter>ETL\Experimental</Filter>
     </ClInclude>

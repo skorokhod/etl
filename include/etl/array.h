@@ -44,6 +44,7 @@ SOFTWARE.
 #include "static_assert.h"
 #include "error_handler.h"
 #include "exception.h"
+#include "integral_limits.h"
 #include "experimental/persistence.h"
 
 ///\defgroup array array
@@ -687,13 +688,16 @@ namespace etl
   {
     using etl::experimental::save_to_persistent;
 
-    size_t buffer_size = Size;
+    uint16_t buffer_size = Size;
+
+    ETL_STATIC_ASSERT(Size <= etl::integral_limits<uint16_t>::max, "Array too large to persist");
 
     save_to_persistent(persistence, buffer_size);
 
-    const char* pvalue = reinterpret_cast<const char*>(value.data());
-    size_t      length = sizeof(T) * buffer_size;
-    persistence.save(pvalue, length);
+    for (size_t i = 0; i < Size; ++i)
+    {
+      save_to_persistent(persistence, value[i]);
+    }
   }
 
   //***********************************
@@ -713,15 +717,16 @@ namespace etl
   {
     using etl::experimental::load_from_persistent;
 
-    size_t buffer_size;
+    uint16_t buffer_size;
     load_from_persistent(persistence, buffer_size);
 
     // Check that the array has enough capacity.
-    ETL_ASSERT((buffer_size <= Size), ETL_ERROR(etl::experimental::persistence_size_mismatch));
+    ETL_ASSERT((size_t(buffer_size) <= Size), ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
-    char* pvalue = reinterpret_cast<char*>(value.data());
-    size_t      length = sizeof(T) * buffer_size;
-    persistence.load(pvalue, length);
+    for (uint16_t i = 0; i < buffer_size; ++i)
+    {
+      load_from_persistent(persistence, value[i]);
+    }
   }
 
   //*********************************

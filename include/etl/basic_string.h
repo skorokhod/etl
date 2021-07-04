@@ -2602,7 +2602,10 @@ namespace etl
   {
     using etl::experimental::save_to_persistent;
 
-    uint32_t buffer_size = value.capacity() + 1U;
+    // Check that we are not exceeding the persistence max size fro a string.
+    ETL_ASSERT_AND_RETURN(((value.capacity() + 1U) <= etl::integral_limits<uint16_t>::max), ETL_ERROR(etl::experimental::persistence_size_mismatch));
+
+    uint16_t buffer_size = uint16_t(value.capacity() + 1U);
 
     save_to_persistent(persistence, buffer_size);
 
@@ -2628,11 +2631,11 @@ namespace etl
   {
     using etl::experimental::load_from_persistent;
 
-    uint32_t buffer_size;
+    uint16_t buffer_size;
     load_from_persistent(persistence, buffer_size);
 
     // Check that the string has enough capacity.
-    ETL_ASSERT((buffer_size <= value.capacity() + 1U) , ETL_ERROR(etl::experimental::persistence_size_mismatch));
+    ETL_ASSERT_AND_RETURN((size_t(buffer_size) <= value.capacity() + 1U) , ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
     value.resize(value.capacity());
 
