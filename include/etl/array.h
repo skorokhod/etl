@@ -700,15 +700,6 @@ namespace etl
     }
   }
 
-  //***********************************
-  template <typename T, size_t Size>
-  etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::array<T, Size>& value)
-  {
-    save_to_persistent(ip, value);
-
-    return ip;
-  }
-
   //***************************************************************************
   /// Load an array from persitent storage.
   //***************************************************************************
@@ -727,15 +718,6 @@ namespace etl
     {
       load_from_persistent(persistence, value[i]);
     }
-  }
-
-  //*********************************
-  template <typename T, size_t Size>
-  etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::array<T, Size>& value)
-  {
-    load_from_persistent(ip, value);
-
-    return ip;
   }
 }
 

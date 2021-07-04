@@ -53,6 +53,7 @@ SOFTWARE.
 #include "static_assert.h"
 #include "placement_new.h"
 #include "algorithm.h"
+#include "experimental/persistence.h"
 
 #if ETL_CPP11_SUPPORTED && ETL_NOT_USING_STLPORT && ETL_USING_STL
   #include <initializer_list>
@@ -1761,6 +1762,51 @@ namespace etl
     v.erase(itr, v.end());
 
     return d;
+  }
+
+  //***************************************************************************
+  /// Save a vector to persitent storage.
+  //***************************************************************************
+  template <typename T>
+  void save_to_persistent(etl::experimental::ipersistence& persistence, const etl::ivector<T>& value)
+  {
+    using etl::experimental::save_to_persistent;
+
+    // Check that we are not exceeding the persistence max size for a vector.
+    ETL_ASSERT_AND_RETURN((value.capacity() <= etl::integral_limits<uint16_t>::max), ETL_ERROR(etl::experimental::persistence_size_mismatch));
+
+    uint16_t buffer_size = uint16_t(value.capacity());
+
+    save_to_persistent(persistence, buffer_size);
+
+    for (size_t i = 0; i < buffer_size; ++i)
+    {
+      save_to_persistent(persistence, value[i]);
+    }
+  }
+
+  //***************************************************************************
+  /// Load a vector from persitent storage.
+  //***************************************************************************
+  template <typename T>
+  void load_from_persistent(etl::experimental::ipersistence& persistence, etl::ivector<T>& value)
+  {
+    using etl::experimental::load_from_persistent;
+
+    uint16_t buffer_size;
+    load_from_persistent(persistence, buffer_size);
+
+    // Check that the string has enough capacity.
+    ETL_ASSERT_AND_RETURN((size_t(buffer_size) <= value.capacity()), ETL_ERROR(etl::experimental::persistence_size_mismatch));
+
+    value.clear();
+
+    for (size_t i = 0; i < buffer_size; ++i)
+    {
+      T item;
+      load_from_persistent(persistence, item);
+      value.push_back(ETL_MOVE(item));
+    }
   }
 }
 

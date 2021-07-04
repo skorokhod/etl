@@ -2602,7 +2602,7 @@ namespace etl
   {
     using etl::experimental::save_to_persistent;
 
-    // Check that we are not exceeding the persistence max size fro a string.
+    // Check that we are not exceeding the persistence max size for a string.
     ETL_ASSERT_AND_RETURN(((value.capacity() + 1U) <= etl::integral_limits<uint16_t>::max), ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
     uint16_t buffer_size = uint16_t(value.capacity() + 1U);
@@ -2612,15 +2612,6 @@ namespace etl
     const char* pvalue = reinterpret_cast<const char*>(value.data());
     size_t      length = sizeof(T) * buffer_size;
     persistence.save(pvalue, length);
-  }
-
-  //***********************************
-  template <typename T>
-  etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::ibasic_string<T>& value)
-  {
-    save_to_persistent(ip, value);
-
-    return ip;
   }
 
   //***************************************************************************
@@ -2644,15 +2635,6 @@ namespace etl
     persistence.load(pvalue, length);
 
     value.resize(etl::strlen(value.c_str()));
-  }
-
-  //*********************************
-  template <typename T>
-  etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::ibasic_string<T>& value)
-  {
-    load_from_persistent(ip, value);
-
-    return ip;
   }
 }
 

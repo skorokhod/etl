@@ -57,6 +57,28 @@ namespace
   }
 
   //***********************
+  struct DataM
+  {
+    uint32_t i;
+    String text;
+
+    DataM(Data&& other)
+    {
+      i = other.i;
+      text = other.text;
+    }
+
+    DataM& operator =(Data&& rhs)
+    {
+      i = rhs.i;
+      text = rhs.text;
+    }
+
+    DataM(const Data&) = delete;
+    DataM& operator =(const Data&) = delete;
+  };
+
+  //***********************
   // How to save Data
   void save_to_persistent(IPersistence& persistence, const Data& value)
   {
@@ -67,13 +89,6 @@ namespace
 
     // Save the string.
     save_to_persistent(persistence, value.text);
-  }
-
-  IPersistence& operator <<(IPersistence& persistence, const Data& value)
-  {
-    save_to_persistent(persistence, value);
-
-    return persistence;
   }
 
   //***********************
@@ -87,13 +102,6 @@ namespace
     
     // Load the string.
     load_from_persistent(persistence, data.text);
-  }
-
-  IPersistence& operator >>(IPersistence& persistence, Data& value)
-  {
-    load_from_persistent(persistence, value);
-
-    return persistence;
   }
 
   //***************************************************************************

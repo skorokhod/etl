@@ -85,6 +85,16 @@ namespace etl
       virtual void load(char* data, size_t length) = 0;
 
       virtual void flush() = 0;
+
+      struct stepper
+      {
+        stepper(size_t n_)
+          : n(n_)
+        {
+        }
+
+        size_t n;
+      };
     };
 
     //***************************************************************************
@@ -146,16 +156,6 @@ namespace etl
       persistence.save(pvalue, length);
     }
 
-    //*********************************
-    template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, etl::experimental::ipersistence&>::type
-      operator <<(etl::experimental::ipersistence& ip, T value)
-    {
-      save_to_persistent(ip, value);
-
-      return ip;
-    }
-
     //***************************************************************************
     /// Generic Load Persistent.
     //***************************************************************************
@@ -167,10 +167,29 @@ namespace etl
       persistence.load(reinterpret_cast<char*>(&value), length);
     }
 
+    //***************************************************************************
+    /// Generic streaming operators.
+    //***************************************************************************
+    template <typename T>
+    etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, const T& value)
+    {
+      save_to_persistent(ip, value);
+
+      return ip;
+    }
+
     //*********************************
     template <typename T>
-    typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, etl::experimental::ipersistence&>::type
-      operator >>(etl::experimental::ipersistence& ip, T& value)
+    etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, T&& value)
+    {
+      save_to_persistent(ip, etl::move(value));
+
+      return ip;
+    }
+
+    //*********************************
+    template <typename T>
+    etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, T& value)
     {
       load_from_persistent(ip, value);
 
@@ -180,6 +199,19 @@ namespace etl
     //***************************************************************************
     /// Find the require persistence size for a value.
     //***************************************************************************
+
+    template <typename T>
+    size_t persistence_size(const T& value)
+    {
+      using etl::experimental::save_to_persistent;
+
+      persistence_profiler profiler;
+
+      save_to_persistent(profiler, value);
+
+      return profiler.size();
+    }
+
 #if ETL_CPP11_SUPPORTED
     template <typename T>
     size_t persistence_size(T&& value)
@@ -192,36 +224,40 @@ namespace etl
 
       return profiler.size();
     }
-#else
-    template <typename T>
-    size_t persistence_size(const T& value)
-    {
-      using etl::experimental::save_to_persistent;
-
-      persistence_profiler profiler;
-
-      save_to_persistent(profiler, value);
-
-      return profiler.size();
-    }
 #endif
 
     //***************************************************************************
     /// Generic Step Persistent.
     //***************************************************************************
+    template <typename T>
+    void step_persistent(etl::experimental::ipersistence& persistence, const T& value)
+    {
+      persistence.step(persistence_size(value));
+    }
+
 #if ETL_CPP11_SUPPORTED
     template <typename T>
     void step_persistent(etl::experimental::ipersistence& persistence, T&& value)
     {
       persistence.step(persistence_size(value));
     }
-#else
-    template <typename T>
-    void step_persistent(etl::experimental::ipersistence& persistence, const T& value)
-    {
-      persistence.step(persistence_size(value));
-    }
 #endif
+
+    //*********************************
+    inline etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::experimental::ipersistence::stepper step)
+    {
+      step_persistent(ip, step.n);
+
+      return ip;
+    }
+
+    //*********************************
+    inline etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::experimental::ipersistence::stepper step)
+    {
+      step_persistent(ip, step.n);
+
+      return ip;
+    }
   }
 }
 
