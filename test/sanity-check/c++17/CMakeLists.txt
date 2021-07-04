@@ -178,6 +178,7 @@ target_sources(t17 PRIVATE etl_profile.h
         ../parameter_type.h.t.cpp
         ../pearson.h.t.cpp
         ../permutations.h.t.cpp
+        ../persistence.h.t.cpp
         ../placement_new.h.t.cpp
         ../platform.h.t.cpp
         ../pool.h.t.cpp

@@ -2602,7 +2602,7 @@ namespace etl
   {
     using etl::experimental::save_to_persistent;
 
-    size_t buffer_size = value.capacity() + 1U;
+    uint32_t buffer_size = value.capacity() + 1U;
 
     save_to_persistent(persistence, buffer_size);
 
@@ -2628,7 +2628,7 @@ namespace etl
   {
     using etl::experimental::load_from_persistent;
 
-    size_t buffer_size;
+    uint32_t buffer_size;
     load_from_persistent(persistence, buffer_size);
 
     // Check that the string has enough capacity.

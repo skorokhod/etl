@@ -1,14 +1,13 @@
 #!/bin/sh
 cd sanity-check || exit 1
-echo "" > log.txt
+echo "" >> log.txt
 
 export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc --all)
 
 ###############################################################################
 cd c++03 || exit 1
 cmake -E make_directory bgcc bclang
-{ echo ""
-echo "Using "${CMAKE_BUILD_PARALLEL_LEVEL}" jobs"
+{ echo "Using "${CMAKE_BUILD_PARALLEL_LEVEL}" jobs"
 echo "-----------------------------------------------"
 echo " C++03"
 echo "-----------------------------------------------"
@@ -121,3 +120,5 @@ cmake --build bclang || echo "**** Failed ****" >> ../log.txt
 echo "-----------------------------------------------"
 echo " Completed"
 echo "-----------------------------------------------"; } >> ../log.txt
+
+echo -en "\007"

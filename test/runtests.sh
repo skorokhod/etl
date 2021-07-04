@@ -2,7 +2,7 @@
 #sudo ntpdate ntp.ubuntu.com
 cd build || exit 1
 
-echo "ETL Tests" > log.txt
+echo "ETL Tests" >> log.txt
 echo ""
 echo "-----------------------------------------------" >> log.txt
 echo " GCC" >> log.txt
@@ -39,3 +39,5 @@ echo ""
 echo "-----------------------------------------------" >> log.txt
 echo " Tests Completed" >> log.txt
 echo "-----------------------------------------------" >> log.txt
+
+echo -en "\007"

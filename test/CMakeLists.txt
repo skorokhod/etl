@@ -166,6 +166,7 @@ set(TEST_SOURCE_FILES
 	test_parameter_type.cpp
 	test_parity_checksum.cpp
 	test_pearson.cpp
+	test_persistence.cpp
 	test_pool.cpp
 	test_priority_queue.cpp
 	test_quantize.cpp

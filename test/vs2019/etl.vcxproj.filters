@@ -2558,6 +2558,9 @@
     <ClCompile Include="..\test_persistence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\sanity-check\persistence.h.t.cpp">
+      <Filter>Source Files\Sanity Checks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\library.properties">
@@ -2646,6 +2649,12 @@
     </None>
     <None Include="..\..\arduino\examples\Vector_Examples\Example_Vector_1_simple_use\Example_Vector_1_simple_use.ino">
       <Filter>ETL\Arduino\Examples\Vector_Examples\Example_Vector_1_simple_use</Filter>
+    </None>
+    <None Include="..\build\runlog.sh">
+      <Filter>Source Files\Scripts</Filter>
+    </None>
+    <None Include="..\sanity-check\runlog.sh">
+      <Filter>Source Files\Scripts</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

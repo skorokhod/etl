@@ -47,7 +47,7 @@ namespace
   //***********************
   struct Data
   {
-    int i;
+    uint32_t i;
     String text;
   };
 
@@ -162,8 +162,8 @@ namespace
       save_to_persistent(profiler, data1.i);
       save_to_persistent(profiler, data1.text);
 
-      CHECK_EQUAL(sizeof(size_t) + 
-                  sizeof(size_t) + 
+      CHECK_EQUAL(sizeof(uint32_t) +
+                  sizeof(uint32_t) +
                   (sizeof(String::value_type) * (String::MAX_SIZE + 1U)), profiler.size());
     }
 
@@ -174,8 +174,8 @@ namespace
 
       size_t size = etl::experimental::persistence_size(data1);
 
-      CHECK_EQUAL(sizeof(size_t) +
-                  sizeof(size_t) +
+      CHECK_EQUAL(sizeof(uint32_t) +
+                  sizeof(uint32_t) +
                   (sizeof(String::value_type) * (String::MAX_SIZE + 1U)), size);
     }
 
