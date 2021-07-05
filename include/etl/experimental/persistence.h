@@ -179,6 +179,7 @@ namespace etl
     }
 
     //*********************************
+#if ETL_CPP11_SUPPORTED
     template <typename T>
     etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, T&& value)
     {
@@ -186,6 +187,7 @@ namespace etl
 
       return ip;
     }
+#endif
 
     //*********************************
     template <typename T>
