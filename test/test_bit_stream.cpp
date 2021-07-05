@@ -29,6 +29,7 @@ SOFTWARE.
 #include "unit_test_framework.h"
 
 #include "etl/bit_stream.h"
+#include "etl/string.h"
 
 #include <array>
 #include <numeric>
@@ -54,6 +55,71 @@ namespace
   {
     os << object.i << "," << object.d << "," << (int)object.c;
     return os;
+  }
+
+  //***********************
+  using String = etl::string<10>;
+
+  struct Data
+  {
+    uint32_t i;
+    String text;
+  };
+
+  bool operator ==(const Data& lhs, const Data& rhs)
+  {
+    return (lhs.i == rhs.i) && (lhs.text == rhs.text);
+  }
+
+  std::ostream& operator <<(std::ostream& os, const String& text)
+  {
+    os << text.c_str();
+
+    return os;
+  }
+
+  //***************************************************************************
+  /// Put Data to bit stream.
+  //***************************************************************************
+  bool put_to_bit_stream(etl::bit_stream& stream, const Data& value)
+  {
+    using etl::put_to_bit_stream;
+
+    bool bi    = etl::put_to_bit_stream(stream, value.i, 8);
+    bool bsize = etl::put_to_bit_stream(stream, value.text.size(), 8);
+    bool btext = true;
+
+    for (auto c : value.text)
+    {
+      btext = btext && etl::put_to_bit_stream(stream, c, 8);
+    }    
+
+    return  bi && btext;
+  }
+
+  //***************************************************************************
+  /// Get Data from bit stream.
+  //***************************************************************************
+  bool get_from_bit_stream(etl::bit_stream& stream, Data& value)
+  {
+    using etl::put_to_bit_stream;
+
+    size_t size;
+
+    bool bi    = etl::get_from_bit_stream(stream, value.i, 8);
+    bool bsize = etl::get_from_bit_stream(stream, size, 8);
+    bool btext = true;
+
+    value.text.clear();
+
+    for (size_t i = 0U; i < size; ++i)
+    {
+      char c;
+      btext = btext && etl::get_from_bit_stream(stream, c, 8);
+      value.text.push_back(c);
+    }
+
+    return  bi && btext;
   }
 }
 
@@ -1066,6 +1132,28 @@ namespace
 
       CHECK(bit_stream.get(rd));
       CHECK_CLOSE(f, rd, 0.1f);
+    }
+
+    //*************************************************************************
+    TEST(put_get_function_overloads)
+    {
+      std::array<unsigned char, 256> storage;
+      etl::bit_stream bit_stream(storage.data(), storage.size());
+
+      Data data1 { 0x12, "Hello" };
+
+      CHECK(put_to_bit_stream(bit_stream, data1));
+
+      bit_stream.restart();
+
+      Data data2{ 0x00, "xxxxx" };
+
+      CHECK(get_from_bit_stream(bit_stream, data2));
+
+      CHECK(data1 == data2);
+      CHECK_EQUAL(data1.i, data2.i);
+      CHECK_EQUAL(data1.text.size(), data2.text.size());
+      CHECK_EQUAL(data1.text, data2.text);
     }
   };
 }

@@ -548,6 +548,26 @@ namespace etl
     size_t        byte_index;     ///< The index of the char in the bitstream buffer.
     size_t        bits_remaining; ///< The number of bits still available in the bitstream buffer.
   };
+
+  //***************************************************************************
+  /// Generic Save Persistent.
+  //***************************************************************************
+  template <typename T>
+  typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
+    put_to_bit_stream(etl::bit_stream& bstream, T value, uint_least8_t width)
+  {
+    return bstream.put(value);
+  }
+
+  //***************************************************************************
+  /// Generic Load Persistent.
+  //***************************************************************************
+  template <typename T>
+  typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
+    get_from_bit_stream(etl::bit_stream& bstream, T& value, uint_least8_t width)
+  {
+    return bstream.get(value);
+  }
 }
 
 #include "private/minmax_pop.h"
