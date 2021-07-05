@@ -81,17 +81,17 @@ namespace
   //***************************************************************************
   /// Put Data to bit stream.
   //***************************************************************************
-  bool put_to_bit_stream(etl::bit_stream& stream, const Data& value)
+  bool bit_stream_put(etl::bit_stream& stream, const Data& value)
   {
-    using etl::put_to_bit_stream;
+    using etl::bit_stream_put;
 
-    bool bi    = etl::put_to_bit_stream(stream, value.i, 8);
-    bool bsize = etl::put_to_bit_stream(stream, value.text.size(), 8);
+    bool bi    = etl::bit_stream_put(stream, value.i, 8);
+    bool bsize = etl::bit_stream_put(stream, value.text.size(), 8);
     bool btext = true;
 
     for (auto c : value.text)
     {
-      btext = btext && etl::put_to_bit_stream(stream, c, 8);
+      btext = btext && etl::bit_stream_put(stream, c, 8);
     }    
 
     return  bi && btext;
@@ -100,14 +100,16 @@ namespace
   //***************************************************************************
   /// Get Data from bit stream.
   //***************************************************************************
-  bool get_from_bit_stream(etl::bit_stream& stream, Data& value)
+  bool bit_stream_get(etl::bit_stream& stream, Data& value)
   {
-    using etl::put_to_bit_stream;
+    using etl::bit_stream_put;
+
+    using etl::bit_stream_get;
 
     size_t size;
 
-    bool bi    = etl::get_from_bit_stream(stream, value.i, 8);
-    bool bsize = etl::get_from_bit_stream(stream, size, 8);
+    bool bi    = etl::bit_stream_get(stream, value.i, 8);
+    bool bsize = etl::bit_stream_get(stream, size, 8);
     bool btext = true;
 
     value.text.clear();
@@ -115,16 +117,13 @@ namespace
     for (size_t i = 0U; i < size; ++i)
     {
       char c;
-      btext = btext && etl::get_from_bit_stream(stream, c, 8);
+      btext = btext && etl::bit_stream_get(stream, c, 8);
       value.text.push_back(c);
     }
 
     return  bi && btext;
   }
-}
 
-namespace etl
-{
   //***********************************
   bool bit_stream_put(etl::bit_stream& stream, const Object& object)
   {
@@ -151,6 +150,8 @@ namespace etl
   //***********************************
   bool bit_stream_get(etl::bit_stream& stream, Object& object)
   {
+    using etl::bit_stream_get;
+
     bool success = true;
 
     if (!stream.get(object.i, 14))
@@ -1093,16 +1094,16 @@ namespace
       Object object1 = { -1234, 2.71578369, 250 };
       Object object2 = {  5678, 5.24685744, 126 };
 
-      CHECK(etl::bit_stream_put(bit_stream, object1));
-      CHECK(etl::bit_stream_put(bit_stream, object2));
+      CHECK(bit_stream_put(bit_stream, object1));
+      CHECK(bit_stream_put(bit_stream, object2));
 
       Object object1a;
       Object object2a;
 
       bit_stream.restart();
 
-      CHECK(etl::bit_stream_get(bit_stream, object1a));
-      CHECK(etl::bit_stream_get(bit_stream, object2a));
+      CHECK(bit_stream_get(bit_stream, object1a));
+      CHECK(bit_stream_get(bit_stream, object2a));
 
       CHECK_EQUAL(object1, object1a);
       CHECK_EQUAL(object2, object2a);
@@ -1142,13 +1143,13 @@ namespace
 
       Data data1 { 0x12, "Hello" };
 
-      CHECK(put_to_bit_stream(bit_stream, data1));
+      CHECK(bit_stream_put(bit_stream, data1));
 
       bit_stream.restart();
 
       Data data2{ 0x00, "xxxxx" };
 
-      CHECK(get_from_bit_stream(bit_stream, data2));
+      CHECK(bit_stream_get(bit_stream, data2));
 
       CHECK(data1 == data2);
       CHECK_EQUAL(data1.i, data2.i);

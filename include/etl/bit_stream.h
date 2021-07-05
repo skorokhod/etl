@@ -554,7 +554,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
-    put_to_bit_stream(etl::bit_stream& bstream, T value, uint_least8_t width)
+    bit_stream_put(etl::bit_stream& bstream, T value, uint_least8_t width)
   {
     return bstream.put(value);
   }
@@ -564,7 +564,7 @@ namespace etl
   //***************************************************************************
   template <typename T>
   typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
-    get_from_bit_stream(etl::bit_stream& bstream, T& value, uint_least8_t width)
+    bit_stream_get(etl::bit_stream& bstream, T& value, uint_least8_t width)
   {
     return bstream.get(value);
   }
