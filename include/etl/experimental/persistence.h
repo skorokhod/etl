@@ -199,7 +199,6 @@ namespace etl
     //***************************************************************************
     /// Find the require persistence size for a value.
     //***************************************************************************
-
     template <typename T>
     size_t persistence_size(const T& value)
     {
@@ -230,14 +229,14 @@ namespace etl
     /// Generic Step Persistent.
     //***************************************************************************
     template <typename T>
-    void step_persistent(etl::experimental::ipersistence& persistence, const T& value)
+    void persistence_step(etl::experimental::ipersistence& persistence, const T& value)
     {
       persistence.step(persistence_size(value));
     }
 
 #if ETL_CPP11_SUPPORTED
     template <typename T>
-    void step_persistent(etl::experimental::ipersistence& persistence, T&& value)
+    void persistence_step(etl::experimental::ipersistence& persistence, T&& value)
     {
       persistence.step(persistence_size(etl::move(value)));
     }
@@ -246,7 +245,7 @@ namespace etl
     //*********************************
     inline etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, etl::experimental::ipersistence::stepper step)
     {
-      step_persistent(ip, step.n);
+      persistence_step(ip, step.n);
 
       return ip;
     }
@@ -254,7 +253,7 @@ namespace etl
     //*********************************
     inline etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, etl::experimental::ipersistence::stepper step)
     {
-      step_persistent(ip, step.n);
+      persistence_step(ip, step.n);
 
       return ip;
     }
