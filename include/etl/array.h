@@ -684,19 +684,19 @@ namespace etl
   /// Save an array to persitent storage.
   //***************************************************************************
   template <typename T, size_t Size>
-  void save_to_persistent(etl::experimental::ipersistence& persistence, const etl::array<T, Size>& value)
+  void persistence_save(etl::experimental::ipersistence& persistence, const etl::array<T, Size>& value)
   {
-    using etl::experimental::save_to_persistent;
+    using etl::experimental::persistence_save;
 
     uint16_t buffer_size = Size;
 
     ETL_STATIC_ASSERT(Size <= etl::integral_limits<uint16_t>::max, "Array too large to persist");
 
-    save_to_persistent(persistence, buffer_size);
+    persistence_save(persistence, buffer_size);
 
     for (size_t i = 0; i < Size; ++i)
     {
-      save_to_persistent(persistence, value[i]);
+      persistence_save(persistence, value[i]);
     }
   }
 
@@ -704,19 +704,19 @@ namespace etl
   /// Load an array from persitent storage.
   //***************************************************************************
   template <typename T, size_t Size>
-  void load_from_persistent(etl::experimental::ipersistence& persistence, etl::array<T, Size>& value)
+  void persistence_load(etl::experimental::ipersistence& persistence, etl::array<T, Size>& value)
   {
-    using etl::experimental::load_from_persistent;
+    using etl::experimental::persistence_load;
 
     uint16_t buffer_size;
-    load_from_persistent(persistence, buffer_size);
+    persistence_load(persistence, buffer_size);
 
     // Check that the array has enough capacity.
     ETL_ASSERT((size_t(buffer_size) <= Size), ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
     for (uint16_t i = 0; i < buffer_size; ++i)
     {
-      load_from_persistent(persistence, value[i]);
+      persistence_load(persistence, value[i]);
     }
   }
 }

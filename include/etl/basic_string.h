@@ -2598,16 +2598,16 @@ namespace etl
   /// Save a basic_string to persitent storage.
   //***************************************************************************
   template <typename T>
-  void save_to_persistent(etl::experimental::ipersistence& persistence, const etl::ibasic_string<T>& value)
+  void persistence_save(etl::experimental::ipersistence& persistence, const etl::ibasic_string<T>& value)
   {
-    using etl::experimental::save_to_persistent;
+    using etl::experimental::persistence_save;
 
     // Check that we are not exceeding the persistence max size for a string.
     ETL_ASSERT_AND_RETURN(((value.capacity() + 1U) <= etl::integral_limits<uint16_t>::max), ETL_ERROR(etl::experimental::persistence_size_mismatch));
 
     uint16_t buffer_size = uint16_t(value.capacity() + 1U);
 
-    save_to_persistent(persistence, buffer_size);
+    persistence_save(persistence, buffer_size);
 
     const char* pvalue = reinterpret_cast<const char*>(value.data());
     size_t      length = sizeof(T) * buffer_size;
@@ -2618,12 +2618,12 @@ namespace etl
   /// Load a basic_string from persitent storage.
   //***************************************************************************
   template <typename T>
-  void load_from_persistent(etl::experimental::ipersistence& persistence, etl::ibasic_string<T>& value)
+  void persistence_load(etl::experimental::ipersistence& persistence, etl::ibasic_string<T>& value)
   {
-    using etl::experimental::load_from_persistent;
+    using etl::experimental::persistence_load;
 
     uint16_t buffer_size;
-    load_from_persistent(persistence, buffer_size);
+    persistence_load(persistence, buffer_size);
 
     // Check that the string has enough capacity.
     ETL_ASSERT_AND_RETURN((size_t(buffer_size) <= value.capacity() + 1U) , ETL_ERROR(etl::experimental::persistence_size_mismatch));

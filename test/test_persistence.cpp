@@ -80,28 +80,28 @@ namespace
 
   //***********************
   // How to save Data
-  void save_to_persistent(IPersistence& persistence, const Data& value)
+  void persistence_save(IPersistence& persistence, const Data& value)
   {
-    using etl::experimental::save_to_persistent;
+    using etl::experimental::persistence_save;
 
     // Save the integer.
-    save_to_persistent(persistence, value.i);
+    persistence_save(persistence, value.i);
 
     // Save the string.
-    save_to_persistent(persistence, value.text);
+    persistence_save(persistence, value.text);
   }
 
   //***********************
   // How to load Data
-  void load_from_persistent(IPersistence& persistence, Data& data)
+  void persistence_load(IPersistence& persistence, Data& data)
   {
-    using etl::experimental::load_from_persistent;
+    using etl::experimental::persistence_load;
 
     // Load the integer.
-    load_from_persistent(persistence, data.i);
+    persistence_load(persistence, data.i);
     
     // Load the string.
-    load_from_persistent(persistence, data.text);
+    persistence_load(persistence, data.text);
   }
 
   //***************************************************************************
@@ -167,8 +167,8 @@ namespace
 
       Data data1 = { 99, "99" };
 
-      save_to_persistent(profiler, data1.i);
-      save_to_persistent(profiler, data1.text);
+      persistence_save(profiler, data1.i);
+      persistence_save(profiler, data1.text);
 
       CHECK_EQUAL(sizeof(uint32_t) +
                   sizeof(uint16_t) +
@@ -196,13 +196,13 @@ namespace
 
       Data data1 = { 99, "99" };
 
-      save_to_persistent(store, data1);
+      persistence_save(store, data1);
 
       store.start();
 
       Data data2 = { 0, "0" };
 
-      load_from_persistent(store, data2);
+      persistence_load(store, data2);
 
       CHECK(data1 == data2);
       CHECK_EQUAL(data1.i, data2.i);
@@ -242,13 +242,13 @@ namespace
 
       String text1 { "0123456789" };
 
-      save_to_persistent(store, text1);
+      persistence_save(store, text1);
 
       store.start();
 
       SmallerString text2 = { "00000" };
 
-      CHECK_THROW((load_from_persistent(store, text2)), etl::experimental::persistence_size_mismatch);
+      CHECK_THROW((persistence_load(store, text2)), etl::experimental::persistence_size_mismatch);
     }
   };
 }

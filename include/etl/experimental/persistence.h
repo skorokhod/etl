@@ -147,7 +147,7 @@ namespace etl
     //***************************************************************************
     template <typename T>
     typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, void>::type
-      save_to_persistent(etl::experimental::ipersistence& persistence, T value)
+      persistence_save(etl::experimental::ipersistence& persistence, T value)
     {
       T temp(value);
 
@@ -161,7 +161,7 @@ namespace etl
     //***************************************************************************
     template <typename T>
     typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value || etl::is_pointer<T>::value || etl::is_trivially_copyable<T>::value, void>::type
-      load_from_persistent(etl::experimental::ipersistence& persistence, T& value)
+      persistence_load(etl::experimental::ipersistence& persistence, T& value)
     {
       size_t length = sizeof(T);
       persistence.load(reinterpret_cast<char*>(&value), length);
@@ -173,7 +173,7 @@ namespace etl
     template <typename T>
     etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, const T& value)
     {
-      save_to_persistent(ip, value);
+      persistence_save(ip, value);
 
       return ip;
     }
@@ -182,7 +182,7 @@ namespace etl
     template <typename T>
     etl::experimental::ipersistence& operator <<(etl::experimental::ipersistence& ip, T&& value)
     {
-      save_to_persistent(ip, etl::move(value));
+      persistence_save(ip, etl::move(value));
 
       return ip;
     }
@@ -191,7 +191,7 @@ namespace etl
     template <typename T>
     etl::experimental::ipersistence& operator >>(etl::experimental::ipersistence& ip, T& value)
     {
-      load_from_persistent(ip, value);
+      persistence_load(ip, value);
 
       return ip;
     }
@@ -203,11 +203,11 @@ namespace etl
     template <typename T>
     size_t persistence_size(const T& value)
     {
-      using etl::experimental::save_to_persistent;
+      using etl::experimental::persistence_save;
 
       persistence_profiler profiler;
 
-      save_to_persistent(profiler, value);
+      persistence_save(profiler, value);
 
       return profiler.size();
     }
@@ -216,11 +216,11 @@ namespace etl
     template <typename T>
     size_t persistence_size(T&& value)
     {
-      using etl::experimental::save_to_persistent;
+      using etl::experimental::persistence_save;
 
       persistence_profiler profiler;
 
-      save_to_persistent(profiler, etl::move(value));
+      persistence_save(profiler, etl::move(value));
 
       return profiler.size();
     }
