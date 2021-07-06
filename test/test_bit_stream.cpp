@@ -102,8 +102,6 @@ namespace
   //***************************************************************************
   bool bit_stream_get(etl::bit_stream& stream, Data& value)
   {
-    using etl::bit_stream_put;
-
     using etl::bit_stream_get;
 
     size_t size;
@@ -116,12 +114,12 @@ namespace
 
     for (size_t i = 0U; i < size; ++i)
     {
-      char c;
+      char c = ' ';
       btext = btext && etl::bit_stream_get(stream, c, 8);
       value.text.push_back(c);
     }
 
-    return  bi && btext;
+    return  bi && bsize && btext;
   }
 
   //***********************************

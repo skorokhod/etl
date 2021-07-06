@@ -550,23 +550,40 @@ namespace etl
   };
 
   //***************************************************************************
-  /// Generic Save Persistent.
+  /// Generic put to a bit stream.
   //***************************************************************************
   template <typename T>
-  typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
-    bit_stream_put(etl::bit_stream& bstream, T value, uint_least8_t width)
+  typename etl::enable_if<etl::is_floating_point<T>::value, bool>::type
+    bit_stream_put(etl::bit_stream& bstream, T value)
   {
     return bstream.put(value);
   }
 
+  template <typename T>
+  typename etl::enable_if<etl::is_integral<T>::value, bool>::type
+    bit_stream_put(etl::bit_stream& bstream, T value, uint_least8_t width)
+  {
+    return bstream.put(value, width);
+  }
+
   //***************************************************************************
-  /// Generic Load Persistent.
+  /// Generic get from a bit stream.
   //***************************************************************************
   template <typename T>
-  typename etl::enable_if<etl::is_integral<T>::value || etl::is_floating_point<T>::value, bool>::type
-    bit_stream_get(etl::bit_stream& bstream, T& value, uint_least8_t width)
+  typename etl::enable_if<etl::is_floating_point<T>::value, bool>::type
+    bit_stream_get(etl::bit_stream& bstream, T& value)
   {
     return bstream.get(value);
+  }
+
+  //***************************************************************************
+  /// Generic get from a bit stream.
+  //***************************************************************************
+  template <typename T>
+  typename etl::enable_if<etl::is_integral<T>::value, bool>::type
+    bit_stream_get(etl::bit_stream& bstream, T& value, uint_least8_t width)
+  {
+    return bstream.get(value, width);
   }
 }
 
