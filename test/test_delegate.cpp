@@ -133,13 +133,13 @@ namespace
     void member_reference(const Data& data, int j)
     {
       function_called = true;
-      parameter_correct = (data.d == VALUE1) && (j = VALUE2);
+      parameter_correct = (data.d == VALUE1) && (j == VALUE2);
     }
 
     void member_reference_const(const Data& data, int j) const
     {
       function_called = true;
-      parameter_correct = (data.d == VALUE1) && (j = VALUE2);
+      parameter_correct = (data.d == VALUE1) && (j == VALUE2);
     }
 
     //*******************************************
@@ -155,7 +155,7 @@ namespace
     static void member_static(const Data& data, int j)
     {
       function_called = true;
-      parameter_correct = (data.d == VALUE1) && (j = VALUE2);
+      parameter_correct = (data.d == VALUE1) && (j == VALUE2);
     }
 
     //*******************************************
@@ -173,28 +173,28 @@ namespace
 
   Test test_static;
   const Test const_test_static;
-}
 
-//*****************************************************************************
-// Initialises the test results.
-//*****************************************************************************
-struct SetupFixture
-{
-  SetupFixture()
+  using DelegateVoid   = etl::delegate<void(void)>;
+  using DelegateIntInt = etl::delegate<void(int, int)>;
+
+  //*****************************************************************************
+  // Initialises the test results.
+  //*****************************************************************************
+  struct SetupFixture
   {
-    function_called   = false;
-    parameter_correct = false;
-  }
-};
+    SetupFixture()
+    {
+      function_called = false;
+      parameter_correct = false;
+    }
+  };
 
-namespace
-{
   SUITE(test_delegate)
   {
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_is_valid_false)
     {
-      etl::delegate<void(void)> d;
+      DelegateVoid d;
 
       CHECK(!d.is_valid());
       CHECK(!d);
@@ -207,7 +207,7 @@ namespace
       //*************************************************************************
       TEST_FIXTURE(SetupFixture, test_is_valid_false)
       {
-        constexpr etl::delegate<void(void)> d;
+        constexpr DelegateVoid d;
 
         CHECK(!d.is_valid());
         CHECK(!d);
@@ -219,7 +219,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_is_valid_true)
     {
-      etl::delegate<void(void)> d([] {});
+      DelegateVoid d([] {});
 
       CHECK(d.is_valid());
       CHECK(d);
@@ -229,7 +229,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_void)
     {
-      auto d = etl::delegate<void(void)>::create<free_void>();
+      auto d = DelegateVoid::create<free_void>();
 
       d();
 
@@ -239,7 +239,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_void_constexpr)
     {
-      constexpr auto d = etl::delegate<void(void)>::create<free_void>();
+      constexpr auto d = DelegateVoid::create<free_void>();
 
       d();
 
@@ -247,9 +247,44 @@ namespace
     }
 
     //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_void_runtime)
+    {
+      auto pf = free_void;
+
+
+
+      DelegateVoid::function_ptr function{ pf };
+
+      DelegateVoid d(function);
+
+      DelegateVoid d2 = DelegateVoid::create(pf);
+
+      d();
+
+      d2();
+
+      CHECK(function_called);
+    }
+
+    //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_int)
     {
-      auto d = etl::delegate<void(int, int)>::create<free_int>();
+      auto d = DelegateIntInt::create<free_int>();
+
+      d(VALUE1, VALUE2);
+
+      CHECK(function_called);
+      CHECK(parameter_correct);
+    }
+
+    //*************************************************************************
+    TEST_FIXTURE(SetupFixture, test_free_int_runtime)
+    {
+      auto pf = free_int;
+
+      DelegateIntInt::function_ptr function{ pf };
+
+      DelegateIntInt d(function);
 
       d(VALUE1, VALUE2);
 
@@ -260,7 +295,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_int_constexpr)
     {
-      constexpr auto d = etl::delegate<void(int, int)>::create<free_int>();
+      constexpr auto d = DelegateIntInt::create<free_int>();
 
       d(VALUE1, VALUE2);
 
@@ -271,7 +306,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_reference)
     {
-      etl::delegate<void(const Data&, int)> d = etl::delegate<void(const Data&, int)>::create<free_reference>();
+      auto d = etl::delegate<void(const Data&, int)>::create<free_reference>();
 
       Data data;
       data.d = VALUE1;
@@ -285,7 +320,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_free_reference_constexpr)
     {
-      constexpr etl::delegate<void(const Data&, int)> d = etl::delegate<void(const Data&, int)>::create<free_reference>();
+      constexpr auto d = etl::delegate<void(const Data&, int)>::create<free_reference>();
 
       Data data;
       data.d = VALUE1;
@@ -327,7 +362,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_lambda_int)
     {
-      etl::delegate<void(int, int)> d([](int i, int j) { function_called = true; parameter_correct = (i == VALUE1) && (j == VALUE2); });
+      DelegateIntInt d([](int i, int j) { function_called = true; parameter_correct = (i == VALUE1) && (j == VALUE2); });
 
       d(VALUE1, VALUE2);
 
@@ -340,7 +375,7 @@ namespace
     {
       auto lambda = [](int i, int j) { function_called = true; parameter_correct = (i == VALUE1) && (j == VALUE2); };
 
-      etl::delegate<void(int, int)> d(lambda);
+      DelegateIntInt d(lambda);
 
       d(VALUE1, VALUE2);
 
@@ -353,7 +388,7 @@ namespace
     {
       Test test;
 
-      etl::delegate<void(void)> d(test);
+      DelegateVoid d(test);
 
       d();
 
@@ -365,7 +400,7 @@ namespace
     {
       Test test;
 
-      auto d = etl::delegate<void(void)>::create(test);
+      auto d = DelegateVoid::create(test);
 
       d();
 
@@ -377,7 +412,7 @@ namespace
     {
       static Test test;
 
-      constexpr auto d = etl::delegate<void(void)>::create(test);
+      constexpr auto d = DelegateVoid::create(test);
 
       d();
 
@@ -389,7 +424,7 @@ namespace
     {
       const Test test;
 
-      etl::delegate<void(void)> d(test);
+      DelegateVoid d(test);
 
       d();
 
@@ -400,7 +435,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time)
     {
-      auto d = etl::delegate<void(void)>::create<Test, test_static>();
+      auto d = DelegateVoid::create<Test, test_static>();
 
       d();
 
@@ -410,7 +445,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_constexpr)
     {
-      constexpr auto d = etl::delegate<void(void)>::create<Test, test_static>();
+      constexpr auto d = DelegateVoid::create<Test, test_static>();
 
       d();
 
@@ -420,7 +455,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_const)
     {
-      auto d = etl::delegate<void(void)>::create<const Test, const_test_static>();
+      auto d = DelegateVoid::create<const Test, const_test_static>();
 
       d();
 
@@ -430,7 +465,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_operator_void_compile_time_const_constexpr)
     {
-      constexpr auto d = etl::delegate<void(void)>::create<const Test, const_test_static>();
+      constexpr auto d = DelegateVoid::create<const Test, const_test_static>();
 
       d();
 
@@ -443,7 +478,7 @@ namespace
     {
       Test test;
 
-      etl::delegate<void(void)> d;
+      DelegateVoid d;
 
       d = test;
 
@@ -457,7 +492,7 @@ namespace
     {
       Test test;
 
-      auto d = etl::delegate<void(void)>::create<Test, &Test::member_void>(test);
+      auto d = DelegateVoid::create<Test, &Test::member_void>(test);
 
       d();
 
@@ -469,7 +504,7 @@ namespace
     {
       static Test test;
 
-      constexpr auto d = etl::delegate<void(void)>::create<Test, &Test::member_void>(test);
+      constexpr auto d = DelegateVoid::create<Test, &Test::member_void>(test);
 
       d();
 
@@ -481,7 +516,7 @@ namespace
     {
       const Test test;
 
-      auto d = etl::delegate<void(void)>::create<Test, &Test::member_void_const>(test);
+      auto d = DelegateVoid::create<Test, &Test::member_void_const>(test);
 
       d();
 
@@ -493,7 +528,7 @@ namespace
     {
       static const Test test;
 
-      constexpr auto d = etl::delegate<void(void)>::create<Test, &Test::member_void_const>(test);
+      constexpr auto d = DelegateVoid::create<Test, &Test::member_void_const>(test);
 
       d();
 
@@ -505,7 +540,7 @@ namespace
     {
       Test test;
 
-      auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      auto d = DelegateIntInt::create<Test, &Test::member_int>(test);
 
       d(VALUE1, VALUE2);
 
@@ -518,7 +553,7 @@ namespace
     {
       static Test test;
 
-      constexpr auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      constexpr auto d = DelegateIntInt::create<Test, &Test::member_int>(test);
 
       d(VALUE1, VALUE2);
 
@@ -531,7 +566,7 @@ namespace
     {
       const Test test;
 
-      auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int_const>(test);
+      auto d = DelegateIntInt::create<Test, &Test::member_int_const>(test);
 
       d(VALUE1, VALUE2);
 
@@ -544,7 +579,7 @@ namespace
     {
       static const Test test;
 
-      constexpr auto d = etl::delegate<void(int, int)>::create<Test, &Test::member_int_const>(test);
+      constexpr auto d = DelegateIntInt::create<Test, &Test::member_int_const>(test);
 
       d(VALUE1, VALUE2);
 
@@ -674,7 +709,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_compile_time)
     {
-      auto d = etl::delegate<void(void)>::create<Test, test_static, &Test::member_void>();
+      auto d = DelegateVoid::create<Test, test_static, &Test::member_void>();
 
       d();
 
@@ -684,7 +719,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_compile_time_constexpr)
     {
-      constexpr auto d = etl::delegate<void(void)>::create<Test, test_static, &Test::member_void>();
+      constexpr auto d = DelegateVoid::create<Test, test_static, &Test::member_void>();
 
       d();
 
@@ -694,7 +729,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_const_compile_time)
     {
-      auto d = etl::delegate<void(void)>::create<Test, const_test_static, &Test::member_void_const>();
+      auto d = DelegateVoid::create<Test, const_test_static, &Test::member_void_const>();
 
       d();
 
@@ -704,7 +739,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_void_const_compile_time_constexpr)
     {
-      constexpr auto d = etl::delegate<void(void)>::create<Test, const_test_static, &Test::member_void_const>();
+      constexpr auto d = DelegateVoid::create<Test, const_test_static, &Test::member_void_const>();
 
       d();
 
@@ -714,7 +749,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int_compile_time)
     {
-      auto d = etl::delegate<void(int, int)>::create<Test, test_static, &Test::member_int>();
+      auto d = DelegateIntInt::create<Test, test_static, &Test::member_int>();
 
       d(VALUE1, VALUE2);
 
@@ -725,7 +760,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int_compile_time_constexpr)
     {
-      constexpr auto d = etl::delegate<void(int, int)>::create<Test, test_static, &Test::member_int>();
+      constexpr auto d = DelegateIntInt::create<Test, test_static, &Test::member_int>();
 
       d(VALUE1, VALUE2);
 
@@ -736,7 +771,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int_const_compile_time)
     {
-      auto d = etl::delegate<void(int, int)>::create<Test, const_test_static, &Test::member_int_const>();
+      auto d = DelegateIntInt::create<Test, const_test_static, &Test::member_int_const>();
 
       d(VALUE1, VALUE2);
 
@@ -747,7 +782,7 @@ namespace
     //*************************************************************************
     TEST_FIXTURE(SetupFixture, test_member_int_const_compile_time_constexpr)
     {
-      constexpr auto d = etl::delegate<void(int, int)>::create<Test, const_test_static, &Test::member_int_const>();
+      constexpr auto d = DelegateIntInt::create<Test, const_test_static, &Test::member_int_const>();
 
       d(VALUE1, VALUE2);
 
@@ -817,7 +852,7 @@ namespace
     {
       Test test;
 
-      auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      auto d1 = DelegateIntInt::create<Test, &Test::member_int>(test);
       auto d2(d1);
 
       d2(VALUE1, VALUE2);
@@ -831,7 +866,7 @@ namespace
     {
       static Test test;
 
-      constexpr auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      constexpr auto d1 = DelegateIntInt::create<Test, &Test::member_int>(test);
       constexpr auto d2(d1);
 
       d2(VALUE1, VALUE2);
@@ -845,8 +880,8 @@ namespace
     {
       Test test;
 
-      auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
-      etl::delegate<void(int, int)> d2;
+      auto d1 = DelegateIntInt::create<Test, &Test::member_int>(test);
+      DelegateIntInt d2;
 
       d2 = d1;
 
@@ -861,7 +896,7 @@ namespace
     {
       Test test;
 
-      auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
+      auto d1 = DelegateIntInt::create<Test, &Test::member_int>(test);
       auto d2 = d1;
 
       CHECK(d1 == d2);
@@ -872,8 +907,8 @@ namespace
     {
       Test test;
 
-      auto d1 = etl::delegate<void(int, int)>::create<Test, &Test::member_int>(test);
-      auto d2 = etl::delegate<void(int, int)>::create<Test, &Test::member_int_const>(test);;
+      auto d1 = DelegateIntInt::create<Test, &Test::member_int>(test);
+      auto d2 = DelegateIntInt::create<Test, &Test::member_int_const>(test);;
 
       CHECK(d1 != d2);
     }
