@@ -49,6 +49,11 @@ namespace
 
   using ItemM1 = TestDataM<int>;
   using ItemM2 = TestDataM<double>;
+
+  int function(int i)
+  {
+    return i * 2;
+  }
 }
 
 namespace
@@ -302,6 +307,18 @@ namespace
 
       CHECK(!nonConstCalled);
       CHECK(constCalled);
+    }
+
+    //*************************************************************************
+    TEST(test_function_operator)
+    {
+      constexpr auto ptr = function;
+
+      constexpr etl::function_operator fo1(ptr);
+      CHECK_EQUAL(2, fo1.operator()(1));
+
+      constexpr const etl::function_operator fo2(ptr);
+      CHECK_EQUAL(2, fo2.operator()(1));
     }
   };
 }
