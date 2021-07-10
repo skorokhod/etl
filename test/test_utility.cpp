@@ -54,6 +54,14 @@ namespace
   {
     return i * 2;
   }
+
+  struct TestClass
+  {
+    int function(int i)
+    {
+      return i * 2;
+    }
+  };
 }
 
 namespace
@@ -310,15 +318,15 @@ namespace
     }
 
     //*************************************************************************
-    TEST(test_function_operator)
+    TEST(test_functor)
     {
       constexpr auto ptr = function;
 
-      constexpr etl::function_operator fo1(ptr);
-      CHECK_EQUAL(2, fo1.operator()(1));
+      constexpr etl::functor fw1(ptr);
+      CHECK_EQUAL(2, fw1.operator()(1));
 
-      constexpr const etl::function_operator fo2(ptr);
-      CHECK_EQUAL(2, fo2.operator()(1));
+      constexpr const etl::functor fw2(ptr);
+      CHECK_EQUAL(2, fw2.operator()(1));
     }
   };
 }

@@ -368,23 +368,29 @@ namespace etl
   /// A function wrapper for free/global functions.
   //*************************************************************************
   template <typename TReturn, typename... TParams>
-  class function_operator
+  class functor
   {
   public:
 
+    //*********************************
     /// Constructor.
-    constexpr function_operator(TReturn(*ptr_)(TParams...))
+    //*********************************
+    constexpr functor(TReturn(*ptr_)(TParams...))
       : ptr(ptr_)
     {
     }
 
+    //*********************************
     /// Function operator.
+    //*********************************
     TReturn operator()(TParams... args)
     {
       return ptr(etl::forward<TParams>(args)...);
     }
 
+    //*********************************
     /// Const function operator.
+    //*********************************
     TReturn operator()(TParams... args) const
     {
       return ptr(etl::forward<TParams>(args)...);
