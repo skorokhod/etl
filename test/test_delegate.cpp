@@ -247,21 +247,13 @@ namespace
     }
 
     //*************************************************************************
-    TEST_FIXTURE(SetupFixture, test_free_void_runtime)
+    TEST_FIXTURE(SetupFixture, test_free_void_runtime_pointer)
     {
-      auto pf = free_void;
+      constexpr auto pf = free_void;
 
-
-
-      DelegateVoid::function_ptr function{ pf };
-
-      DelegateVoid d(function);
-
-      DelegateVoid d2 = DelegateVoid::create(pf);
+      constexpr DelegateVoid d = DelegateVoid::create(pf);
 
       d();
-
-      d2();
 
       CHECK(function_called);
     }
@@ -282,9 +274,7 @@ namespace
     {
       auto pf = free_int;
 
-      DelegateIntInt::function_ptr function{ pf };
-
-      DelegateIntInt d(function);
+      DelegateIntInt d(pf);
 
       d(VALUE1, VALUE2);
 

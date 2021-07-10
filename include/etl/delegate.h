@@ -87,6 +87,9 @@ namespace etl
     }
   };
 
+  //***************************************************************************
+  /// Delegate
+  //***************************************************************************
   template <typename T> class delegate;
 
   template <typename TReturn, typename... TParams>
@@ -95,35 +98,30 @@ namespace etl
   public:
 
     //*************************************************************************
-    /// A wrapper for free functions, to allow runtime creation from a pointer.
-    //*************************************************************************
-    struct function_ptr
-    {
-      TReturn operator()(TParams... args)
-      {
-        return ptr(etl::forward<TParams>(args)...);
-      }
-
-      TReturn(*ptr)(TParams...);
-    };
-
-    //*************************************************************************
     /// Default constructor.
     //*************************************************************************
     delegate() = default;
 
     //*************************************************************************
-    // Copy constructor.
+    /// Copy constructor.
     //*************************************************************************
     delegate(const delegate& other) = default;
 
     //*************************************************************************
-    // Constructor from lambda or functor.
+    /// Constructor from lambda or functor.
     //*************************************************************************
     template <typename TLambda, typename = typename etl::enable_if<etl::is_class<TLambda>::value, void>::type>
     delegate(const TLambda& instance)
+      : delegate((void*)(&instance), lambda_stub<TLambda>)
     {
-      assign((void*)(&instance), lambda_stub<TLambda>);
+    }
+
+    //*************************************************************************
+    /// Constructor from a function pointer.
+    //*************************************************************************
+    constexpr delegate(TReturn(*function)(TParams...))
+      : delegate(function, function_runtime_stub)
+    {
     }
 
     //*************************************************************************
@@ -224,17 +222,19 @@ namespace etl
     }
 
     //*************************************************************************
-    /// Create from function (Compile time).
+    /// Assignment operator.
     //*************************************************************************
     delegate& operator =(const delegate& rhs) = default;
 
     //*************************************************************************
-    /// Create from Lambda or Functor.
+    /// Assign from Lambda or Functor.
     //*************************************************************************
     template <typename TLambda, typename = typename etl::enable_if<etl::is_class<TLambda>::value, void>::type>
     delegate& operator =(const TLambda& instance)
     {
-      assign((void*)(&instance), lambda_stub<TLambda>);
+      invocation.object = (void*)(&instance);
+      invocation.stub   = lambda_stub<TLambda>;
+
       return *this;
     }
 
@@ -350,15 +350,6 @@ namespace etl
     }
 
     //*************************************************************************
-    /// Assign from an object and stub.
-    //*************************************************************************
-    void assign(void* object, stub_type stub)
-    {
-      invocation.object = object;
-      invocation.stub   = stub;
-    }
-
-    //*************************************************************************
     /// Stub call for a member function. Run time instance.
     //*************************************************************************
     template <typename T, TReturn(T::*Method)(TParams...)>
@@ -442,5 +433,4 @@ namespace etl
 }
 
 #endif
-
 #endif
