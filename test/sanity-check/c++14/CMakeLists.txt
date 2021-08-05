@@ -12,6 +12,16 @@ else()
 	message(STATUS "Compiling for STL")
 endif()
 
+if (ETL_USE_TYPE_TRAITS_BUILTINS)
+	message(STATUS "Compiling for built-in type traits")
+	add_definitions(-DETL_USE_TYPE_TRAITS_BUILTINS)
+endif()
+
+if (ETL_USER_DEFINED_TYPE_TRAITS)
+	message(STATUS "Compiling for user defined type traits")
+	add_definitions(-DETL_USER_DEFINED_TYPE_TRAITS)
+endif()
+
 add_library(t14 OBJECT)
 target_compile_definitions(t14 PRIVATE __STDC_LIMIT_MACROS __STDC_CONSTANT_MACROS __STDC_FORMAT_MACROS)
 target_include_directories(t14 PRIVATE "")
@@ -33,6 +43,7 @@ target_sources(t14 PRIVATE etl_profile.h
         ../basic_string.h.t.cpp
         ../basic_string_stream.h.t.cpp
         ../binary.h.t.cpp
+        ../bip_buffer_spsc_atomic.h.t.cpp
         ../bitset.h.t.cpp
         ../bit_stream.h.t.cpp
         ../bloom_filter.h.t.cpp
@@ -173,6 +184,7 @@ target_sources(t14 PRIVATE etl_profile.h
         ../numeric.h.t.cpp
         ../observer.h.t.cpp
         ../optional.h.t.cpp
+        ../overload.h.t.cpp
         ../packet.h.t.cpp
         ../parameter_pack.h.t.cpp
         ../parameter_type.h.t.cpp
@@ -243,7 +255,8 @@ target_sources(t14 PRIVATE etl_profile.h
         ../user_type.h.t.cpp
         ../utility.h.t.cpp
         ../variance.h.t.cpp
-        ../variant.h.t.cpp
+        ../variant_legacy.h.t.cpp
+        ../variant_variadic.h.t.cpp
         ../variant_pool.h.t.cpp
         ../vector.h.t.cpp
         ../version.h.t.cpp

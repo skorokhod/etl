@@ -12,6 +12,16 @@ else()
 	message(STATUS "Compiling for STL")
 endif()
 
+if (ETL_USE_TYPE_TRAITS_BUILTINS)
+	message(STATUS "Compiling for built-in type traits")
+	add_definitions(-DETL_USE_TYPE_TRAITS_BUILTINS)
+endif()
+
+if (ETL_USER_DEFINED_TYPE_TRAITS)
+	message(STATUS "Compiling for user defined type traits")
+	add_definitions(-DETL_USER_DEFINED_TYPE_TRAITS)
+endif()
+
 if(NOT UnitTest++_FOUND)
   # Add unittest-cpp as an ExternalProject
   include(cmake/unit-test_external_project.cmake)
@@ -32,6 +42,7 @@ set(TEST_SOURCE_FILES
 	test_atomic_gcc_sync.cpp
 	test_atomic_std.cpp
 	test_binary.cpp
+	test_bip_buffer_spsc_atomic.cpp
 	test_bitset.cpp
 	test_bit_stream.cpp
 	test_bloom_filter.cpp
@@ -100,6 +111,7 @@ set(TEST_SOURCE_FILES
 	test_debounce.cpp
 	test_delegate.cpp
 	test_delegate_service.cpp
+	test_delegate_service_compile_time.cpp
 	test_deque.cpp
 	test_endian.cpp
 	test_enum_type.cpp
@@ -237,7 +249,8 @@ set(TEST_SOURCE_FILES
 	test_user_type.cpp
 	test_utility.cpp
 	test_variance.cpp
-	test_variant.cpp
+	test_variant_legacy.cpp
+	test_variant_variadic.cpp
 	test_variant_pool.cpp
 	test_vector.cpp
 	test_vector_external_buffer.cpp
