@@ -1142,6 +1142,7 @@
     </ClInclude>
     <ClInclude Include="..\..\include\etl\experimental\mem_cast.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\etl\experimental\persistence.h">
       <Filter>ETL\Experimental</Filter>
     </ClInclude>
