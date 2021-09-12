@@ -458,9 +458,9 @@ namespace etl
   /// Make string from string literal or array
   //***************************************************************************
   template<size_t ARRAY_SIZE>
-  etl::u16string<ARRAY_SIZE == 1 ? 1 : ARRAY_SIZE - 1> make_string(const char16_t(&text)[ARRAY_SIZE])
+  etl::u16string<ARRAY_SIZE> make_string(const char16_t(&text)[ARRAY_SIZE])
   {
-    return etl::u16string<ARRAY_SIZE == 1 ? 1 : ARRAY_SIZE - 1>(text, etl::strlen(text));
+    return etl::u16string<ARRAY_SIZE>(text, etl::strlen(text, ARRAY_SIZE));
   }
 
   //***************************************************************************
@@ -469,7 +469,7 @@ namespace etl
   template<const size_t MAX_SIZE, const size_t SIZE>
   etl::u16string<MAX_SIZE> make_string_with_capacity(const char16_t(&text)[SIZE])
   {
-    return etl::u16string<MAX_SIZE>(text, etl::strlen(text));
+    return etl::u16string<MAX_SIZE>(text, etl::strlen(text, SIZE));
   }
 }
 

@@ -144,6 +144,88 @@ namespace
     }
 
     //*************************************************************************
+    TEST(test_constexpr_make_string_view)
+    {
+      constexpr auto cview   = etl::make_string_view("Hello World");
+      constexpr auto wview   = etl::make_string_view(L"Hello World");
+      constexpr auto u16view = etl::make_string_view(u"Hello World");
+      constexpr auto u32view = etl::make_string_view(U"Hello World");
+
+      CHECK(std::equal(cview.begin(), cview.end(), text.begin()));
+      CHECK(std::equal(wview.begin(), wview.end(), text.begin()));
+      CHECK(std::equal(u16view.begin(), u16view.end(), text.begin()));
+      CHECK(std::equal(u32view.begin(), u32view.end(), text.begin()));
+    }
+
+    //*************************************************************************
+    TEST(test_make_string_view_check_consistent_strings_from_arrays_of_char)
+    {
+      char text_extra_nulls[10] = { 'H', 'e', 'l', 'l', 'o' };
+      char text_no_null[10] = { 'H', 'e', 'l', 'l', 'o' };
+      std::string text_expected = "Hello";
+
+      auto view_extra_nulls = etl::make_string_view(text_extra_nulls);
+      auto view_no_null     = etl::make_string_view(text_no_null);
+
+      CHECK_EQUAL(text_expected.size(), view_extra_nulls.size());
+      CHECK_EQUAL(text_expected.size(), view_no_null.size());
+
+      CHECK(std::equal(view_extra_nulls.begin(), view_extra_nulls.end(), text_expected.begin()));
+      CHECK(std::equal(view_no_null.begin(), view_no_null.end(), text_expected.begin()));
+    }
+
+    //*************************************************************************
+    TEST(test_make_string_view_check_consistent_strings_from_arrays_of_wchar_t)
+    {
+      wchar_t text_extra_nulls[10] = { L'H', L'e', L'l', L'l', L'o' };
+      wchar_t text_no_null[10] = { L'H', L'e', L'l', L'l', L'o' };
+      std::wstring text_expected = L"Hello";
+
+      auto view_extra_nulls = etl::make_string_view(text_extra_nulls);
+      auto view_no_null = etl::make_string_view(text_no_null);
+
+      CHECK_EQUAL(text_expected.size(), view_extra_nulls.size());
+      CHECK_EQUAL(text_expected.size(), view_no_null.size());
+
+      CHECK(std::equal(view_extra_nulls.begin(), view_extra_nulls.end(), text_expected.begin()));
+      CHECK(std::equal(view_no_null.begin(), view_no_null.end(), text_expected.begin()));
+    }
+
+    //*************************************************************************
+    TEST(test_make_string_view_check_consistent_strings_from_arrays_of_char16_t)
+    {
+      char16_t text_extra_nulls[10] = { u'H', u'e', u'l', u'l', u'o' };
+      char16_t text_no_null[10] = { u'H', u'e', u'l', u'l', u'o' };
+      std::u16string text_expected = u"Hello";
+
+      auto view_extra_nulls = etl::make_string_view(text_extra_nulls);
+      auto view_no_null = etl::make_string_view(text_no_null);
+
+      CHECK_EQUAL(text_expected.size(), view_extra_nulls.size());
+      CHECK_EQUAL(text_expected.size(), view_no_null.size());
+
+      CHECK(std::equal(view_extra_nulls.begin(), view_extra_nulls.end(), text_expected.begin()));
+      CHECK(std::equal(view_no_null.begin(), view_no_null.end(), text_expected.begin()));
+    }
+
+    //*************************************************************************
+    TEST(test_make_string_view_check_consistent_strings_from_arrays_of_char32_t)
+    {
+      char32_t text_extra_nulls[10] = { U'H', U'e', U'l', U'l', U'o' };
+      char32_t text_no_null[10] = { U'H', U'e', U'l', U'l', U'o' };
+      std::u32string text_expected = U"Hello";
+
+      auto view_extra_nulls = etl::make_string_view(text_extra_nulls);
+      auto view_no_null = etl::make_string_view(text_no_null);
+
+      CHECK_EQUAL(text_expected.size(), view_extra_nulls.size());
+      CHECK_EQUAL(text_expected.size(), view_no_null.size());
+
+      CHECK(std::equal(view_extra_nulls.begin(), view_extra_nulls.end(), text_expected.begin()));
+      CHECK(std::equal(view_no_null.begin(), view_no_null.end(), text_expected.begin()));
+    }
+
+    //*************************************************************************
     TEST(test_template_deduction)
     {
       etl::basic_string_view cview{ "Hello World" };

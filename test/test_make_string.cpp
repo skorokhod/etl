@@ -84,15 +84,40 @@ namespace
       auto u16text = etl::make_string(u"Hello World");
       auto u32text = etl::make_string(U"Hello World");
 
-      CHECK_EQUAL(length, ctext.max_size());
-      CHECK_EQUAL(length, wtext.max_size());
-      CHECK_EQUAL(length, u16text.max_size());
-      CHECK_EQUAL(length, u32text.max_size());
+      CHECK_EQUAL(length, ctext.size());
+      CHECK_EQUAL(length, wtext.size());
+      CHECK_EQUAL(length, u16text.size());
+      CHECK_EQUAL(length, u32text.size());
+
+      CHECK_EQUAL(length + 1U, ctext.capacity());
+      CHECK_EQUAL(length + 1U, wtext.capacity());
+      CHECK_EQUAL(length + 1U, u16text.capacity());
+      CHECK_EQUAL(length + 1U, u32text.capacity());
 
       CHECK(Equal(std::string("Hello World"), ctext));
       CHECK(Equal(std::wstring(L"Hello World"), wtext));
       CHECK(Equal(std::u16string(u"Hello World"), u16text));
       CHECK(Equal(std::u32string(U"Hello World"), u32text));
+    }
+
+    //*************************************************************************
+    TEST(test_make_string_check_consistent_strings_from_arrays_of_char)
+    {
+      char text_extra_nulls[10] = { 'H', 'e', 'l', 'l', 'o' };
+      char text_no_null[10] = { 'H', 'e', 'l', 'l', 'o' };
+      std::string text_expected = "Hello";
+
+      auto view_extra_nulls = etl::make_string(text_extra_nulls);
+      auto view_no_null = etl::make_string(text_no_null);
+
+      CHECK_EQUAL(text_expected.size(), view_extra_nulls.size());
+      CHECK_EQUAL(text_expected.size(), view_no_null.size());
+
+      CHECK_EQUAL(etl::size(text_extra_nulls), view_extra_nulls.capacity());
+      CHECK_EQUAL(etl::size(text_no_null), view_no_null.capacity());
+
+      CHECK(std::equal(view_extra_nulls.begin(), view_extra_nulls.end(), text_expected.begin()));
+      CHECK(std::equal(view_no_null.begin(), view_no_null.end(), text_expected.begin()));
     }
 
     //*************************************************************************
