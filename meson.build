@@ -1,4 +1,4 @@
-project('PROJECT_NAME',
+project('etl',
 	['cpp'],
 	default_options : [
 		'warning_level=2',
@@ -172,34 +172,28 @@ if meson.get_compiler('cpp').get_id() == 'gcc'
 	etl_test_sources += files('test/test_atomic_gcc_sync.cpp')
 endif
 
-unittestcpp_dep = dependency('UnitTest++',
-	native: true,
-	required: false,
-	not_found_message: 'UnitTest++ not found, ETL unit tests will be disabled',
-	disabler: true,
-)
-
-etl_unit_tests = executable('etl_unit_tests',
-	include_directories: [
-		include_directories('test'),
-		# Included here instead of with the dependency so we can see
-		# header-induced warnings when building the tests
-		include_directories('include')
-	],
-	sources: etl_test_sources,
-	dependencies: unittestcpp_dep,
-	cpp_args: [
-		'-fexceptions',
-		'-DENABLE_ETL_UNIT_TESTS',
-		'-DETL_DEBUG',
-	],
-	native: true,
-	install: false,
-	# Don't build tests by default if we are a subproject
-	build_by_default: meson.is_subproject() == false
-)
-
 # Only register tests with the test runner when built as a primary project
 if meson.is_subproject() == false
+	unittest_cpp_dep = subproject('unittest-cpp').get_variable('unittest_cpp_dep')
+
+	etl_unit_tests = executable('etl_unit_tests',
+		include_directories: [
+			include_directories('test'),
+			# Included here instead of with the dependency so we can see
+			# header-induced warnings when building the tests
+			include_directories('include')
+		],
+		sources: etl_test_sources,
+		dependencies: unittest_cpp_dep,
+		cpp_args: [
+			'-fexceptions',
+			'-DENABLE_ETL_UNIT_TESTS',
+			'-DETL_DEBUG',
+		],
+		native: true,
+		install: false,
+		# Don't build tests by default if we are a subproject
+		build_by_default: meson.is_subproject() == false
+	)
 	test('ETL Unit Tests', etl_unit_tests)
 endif
